@@ -1,4 +1,4 @@
 [submodule "external/samaat.io"]
 	path = external/samaat.io
 	url = https://github.com/MuhammadAbdulMoiz/samaat.io
-	branch = claude/phone-handoff
+	branch = master
