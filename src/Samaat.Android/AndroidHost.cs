@@ -7,6 +7,7 @@ using Samaat.Core.Profiles;
 using Samaat.Core.Settings;
 using Samaat.Drivers;
 using Samaat.Handoff.Storage;
+using Samaat.Mobile.Diagnostics;
 using Samaat.Mobile.Runtime;
 using Samaat.Platform.Android;
 
@@ -37,6 +38,8 @@ internal static class AndroidHost
             }
 
             var app = context.ApplicationContext ?? context;
+            // Errors the phone handles but mustn't hide: also to logcat, under the tag "Samaat".
+            MobileLog.Written += line => global::Android.Util.Log.Warn("Samaat", line);
             var prompt = new AndroidUserPrompt(app, () => Foreground, Resource.Drawable.icon);
             _audio = new AndroidPhoneAudio(app, prompt);
             // The same devices/ folder as the desktop: driver catalog, model profiles and artwork photos.
@@ -88,9 +91,10 @@ internal static class AndroidHost
         {
             Copy("devices", root);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // A failed copy leaves what an earlier start extracted; the app still runs without models or photos.
+            MobileLog.Error("Extracting the devices/ assets", ex);
         }
 
         return root;
@@ -181,9 +185,10 @@ internal sealed class AndroidMobilePlatform(Context context, AndroidPhoneAudio a
         {
             context.StartForegroundService(intent);
         }
-        catch (Java.Lang.Exception)
+        catch (Java.Lang.Exception ex)
         {
             // Not allowed right now (app in the background on Android 12+); the link still runs while the app is open.
+            MobileLog.Error("Starting the link service", ex);
         }
     }
 }

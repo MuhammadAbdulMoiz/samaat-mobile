@@ -38,7 +38,7 @@ public partial class MobileApp : Application
     {
         var viewModel = new MainViewModel(RuntimeFactory());
         Shell = viewModel;
-        _ = viewModel.StartAsync();
+        viewModel.Start();
         return new MainView { DataContext = viewModel };
     }
 }

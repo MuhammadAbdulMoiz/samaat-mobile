@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Samaat.Mobile.Diagnostics;
 using Samaat.Mobile.Runtime;
 
 namespace Samaat.Mobile.ViewModels;
@@ -88,6 +89,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public partial string? Message { get; set; }
 
     public bool HasMessage => Message is not null;
+
+    /// <summary>Starts without waiting (the app's entry point): a failure is logged and shown, never lost.</summary>
+    public void Start() =>
+        StartAsync().Observe("Starting the phone app",
+            _ => _post(() => ShowMessage("Samaat couldn't start everything. Close and reopen the app to try again.")));
 
     public async Task StartAsync()
     {

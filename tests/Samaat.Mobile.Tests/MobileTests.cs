@@ -45,7 +45,7 @@ public sealed class MobileTests : IAsyncDisposable
         _computer.PairingRequested += (_, r) => _request = r;
         _computer.Start();
 
-        _runtime = SimulatedMobile.Create(_bus.CreateListener(),
+        _runtime = SimulatedMobile.Create(_bus.CreateListener(), time: FrozenClock.Instance,
             clientOptions: new PhoneLinkClientOptions { RetryMin = TimeSpan.FromMilliseconds(100), RetryMax = TimeSpan.FromMilliseconds(500) });
         _viewModel = new MainViewModel(_runtime);
         _window = new Window { Width = 412, Height = 892, Content = new MainView { DataContext = _viewModel } };

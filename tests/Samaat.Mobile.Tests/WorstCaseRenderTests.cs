@@ -117,7 +117,7 @@ public sealed class WorstCaseRenderTests
     [AvaloniaFact]
     public async Task WorstCase_RendersEveryScreen_InBothThemes_AtPhoneWidths()
     {
-        await using var runtime = SimulatedMobile.Create(scenario: SimulatorScenario.WorstCase);
+        await using var runtime = SimulatedMobile.Create(time: FrozenClock.Instance, scenario: SimulatorScenario.WorstCase);
         using var viewModel = new MainViewModel(runtime);
         // Tall, so a whole device page is in one frame.
         var window = new Window { Width = 412, Height = 1600, Content = new MainView { DataContext = viewModel } };
@@ -148,7 +148,7 @@ public sealed class WorstCaseRenderTests
     [AvaloniaFact]
     public async Task Empty_ShowsTheEmptyState_InBothThemes_AtPhoneWidths()
     {
-        await using var runtime = SimulatedMobile.Create(scenario: SimulatorScenario.Empty);
+        await using var runtime = SimulatedMobile.Create(time: FrozenClock.Instance, scenario: SimulatorScenario.Empty);
         using var viewModel = new MainViewModel(runtime);
         var window = new Window { Width = 412, Height = 892, Content = new MainView { DataContext = viewModel } };
         window.Show();
@@ -183,7 +183,7 @@ public sealed class WorstCaseRenderTests
             () => [.. computerDevices.Devices, .. demo.Devices], bus.CreateSender());
         computer.PairingRequested += (_, r) => request = r;
         computer.Start();
-        await using var runtime = SimulatedMobile.Create(bus.CreateListener(), scenario: SimulatorScenario.WorstCase,
+        await using var runtime = SimulatedMobile.Create(bus.CreateListener(), time: FrozenClock.Instance, scenario: SimulatorScenario.WorstCase,
             clientOptions: new PhoneLinkClientOptions { RetryMin = TimeSpan.FromMilliseconds(100), RetryMax = TimeSpan.FromMilliseconds(500) });
         using var viewModel = new MainViewModel(runtime);
         var window = new Window { Width = 412, Height = 1600, Content = new MainView { DataContext = viewModel } };

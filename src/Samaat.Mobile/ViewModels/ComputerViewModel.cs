@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Samaat.Handoff;
 using Samaat.Handoff.Pairing;
+using Samaat.Mobile.Diagnostics;
 using Samaat.Mobile.Runtime;
 
 namespace Samaat.Mobile.ViewModels;
@@ -127,7 +128,7 @@ public sealed partial class ComputerViewModel : ObservableObject, IDisposable
         _pairingWith = computer;
         PairingTitle = $"Pairing with {computer.Name}";
         Code = session.Code;
-        _ = session.PeerDecision.ContinueWith(t =>
+        session.PeerDecision.ContinueWith(t =>
         {
             if (!t.Result)
             {
@@ -136,11 +137,11 @@ public sealed partial class ComputerViewModel : ObservableObject, IDisposable
                     if (ReferenceEquals(_session, session) && !IsAnswering)
                     {
                         PairingError = $"Pairing was cancelled on {computer.Name}.";
-                        _ = EndAsync(session, false);
+                        EndAsync(session, false).Observe("Ending a pairing the computer cancelled");
                     }
                 });
             }
-        }, TaskScheduler.Default);
+        }, TaskScheduler.Default).Observe("Waiting for the computer's answer");
     }
 
     [RelayCommand]
