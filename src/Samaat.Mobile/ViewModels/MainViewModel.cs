@@ -150,6 +150,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private Task RefreshAsync() => _runtime.Registry.RefreshAsync();
 
+    /// <summary>The empty list's way out: earbuds are paired in the phone's Bluetooth settings, not in Samaat.</summary>
+    [RelayCommand]
+    private Task OpenBluetoothSettingsAsync()
+    {
+        _runtime.Platform.OpenBluetoothSettings();
+        return Task.CompletedTask;
+    }
+
     public void ShowMessage(string text)
     {
         Message = text;

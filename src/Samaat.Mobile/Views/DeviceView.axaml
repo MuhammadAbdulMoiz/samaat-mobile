@@ -150,7 +150,7 @@
             <PathIcon Data="{StaticResource Icon.Laptop}" Width="16" Height="16" />
           </Border>
           <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="2" VerticalAlignment="Center">
-            <TextBlock Text="{Binding ComputerTitle}" Classes="panelTitle" />
+            <TextBlock Text="{Binding ComputerTitle}" Classes="panelTitle" TextWrapping="Wrap" />
             <TextBlock Text="{Binding ComputerStateText}" Classes="meta" TextWrapping="Wrap" />
           </StackPanel>
         </Grid>

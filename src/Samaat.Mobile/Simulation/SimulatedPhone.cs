@@ -33,8 +33,10 @@ public sealed class SimulatedPhoneAudio : IPhoneAudioLink
     /// <summary>When set, the next connect fails with this message (like the user ignoring the output picker).</summary>
     public string? FailNextConnect { get; set; }
 
+    /// <summary>Devices with a Bluetooth address, as Android lists them; the worst-case data has some without one.</summary>
     public IReadOnlyList<PhoneAudioDevice> Devices =>
-        [.. _devices.Select(d => new PhoneAudioDevice(d.Identity.Details!.Address!, d.Identity.Name, d.Connection == ConnectionState.Connected))];
+        [.. _devices.Where(d => !string.IsNullOrEmpty(d.Identity.Details?.Address))
+            .Select(d => new PhoneAudioDevice(d.Identity.Details!.Address!, d.Identity.Name, d.Connection == ConnectionState.Connected))];
 
     public event EventHandler? Changed;
 
@@ -66,11 +68,14 @@ public sealed class SimulatedPhoneAudio : IPhoneAudioLink
 
 public static class SimulatedMobile
 {
-    /// <summary>A runtime over the simulator's three devices, with an in-memory pairing store.</summary>
+    /// <summary>
+    /// A runtime over the simulator's devices (the three demo devices unless <paramref name="scenario"/> picks the
+    /// worst-case or empty data set), with an in-memory pairing store.
+    /// </summary>
     public static MobileRuntime Create(IBeaconListener? beacons = null, PeerStore? store = null, TimeProvider? time = null,
-        Samaat.Handoff.PhoneLinkClientOptions? clientOptions = null)
+        Samaat.Handoff.PhoneLinkClientOptions? clientOptions = null, SimulatorScenario scenario = SimulatorScenario.Demo)
     {
-        var source = new SimulatorDeviceSource(TimeSpan.FromSeconds(2), time);
+        var source = new SimulatorDeviceSource(TimeSpan.FromSeconds(2), time, scenario: scenario);
         // The same devices/ folder as the desktop, copied next to the app: model names and artwork photos.
         var profiles = DeviceProfileDb.Load(Path.Combine(AppContext.BaseDirectory, "devices"));
         return new MobileRuntime([source], new SimulatedPhoneAudio(source.Devices), store ?? new PeerStore(null), "Simulated phone",
