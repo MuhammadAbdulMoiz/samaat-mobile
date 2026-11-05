@@ -18,8 +18,9 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- The desktop's device catalog, profiles and artwork photos; extracted on start (AndroidHost.ExtractDevices). -->
-    <AndroidAsset Include="$(SamaatShared)devices\**\*.json" LinkBase="Assets\devices" />
-    <AndroidAsset Include="$(SamaatShared)devices\**\*.png" LinkBase="Assets\devices" />
+    <!-- Link, not LinkBase: the files sit outside the project, and LinkBase kept their full path inside the APK. -->
+    <AndroidAsset Include="$(SamaatShared)devices\**\*.json" Link="Assets\devices\%(RecursiveDir)%(Filename)%(Extension)" />
+    <AndroidAsset Include="$(SamaatShared)devices\**\*.png" Link="Assets\devices\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia.Android" />
