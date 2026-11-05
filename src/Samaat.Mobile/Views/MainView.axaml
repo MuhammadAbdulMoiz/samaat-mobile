@@ -5,7 +5,8 @@
              xmlns:uilogo="using:Samaat.UI"
              x:Class="Samaat.Mobile.Views.MainView"
              x:DataType="vm:MainViewModel"
-             Classes="shell">
+             Classes="shell"
+             Classes.reduce-motion="{Binding ReduceMotion}">
   <Grid x:Name="Root" RowDefinitions="Auto,Auto,*,Auto">
 
     <!-- Header -->

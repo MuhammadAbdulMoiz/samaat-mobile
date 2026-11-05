@@ -66,4 +66,19 @@ public sealed class PolishTests
             window.Close();
         }
     }
+
+    /// <summary>The shell style (ink background, body text size) must reach MainView, a UserControl subclass.</summary>
+    [AvaloniaFact]
+    public void Shell_AppliesToTheMainView()
+    {
+        var view = new Samaat.Mobile.Views.MainView();
+        var window = new Window { Content = view };
+        window.Show();
+        Dispatcher.UIThread.RunJobs();
+
+        Assert.True(Avalonia.Application.Current!.TryGetResource("Samaat.Mobile.FontSize.Body", ThemeVariant.Dark, out var body));
+        Assert.Equal((double)body!, view.FontSize);
+        Assert.Equal(Token("Samaat.Bg"), ((ISolidColorBrush)view.Background!).Color);
+        window.Close();
+    }
 }

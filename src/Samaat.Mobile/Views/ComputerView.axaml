@@ -77,7 +77,7 @@
         <TextBlock Text="Pair with a computer" Classes="panelTitle" />
         <TextBlock Text="{Binding HowToText}" Classes="meta" TextWrapping="Wrap" />
         <StackPanel Spacing="8" IsVisible="{Binding ShowSearching}">
-          <ProgressBar Classes="busy" IsIndeterminate="True" />
+          <ProgressBar Classes="busy" />
           <TextBlock Text="Looking for computers…" Classes="meta" />
         </StackPanel>
         <ItemsControl ItemsSource="{Binding Nearby}" IsVisible="{Binding HasNearby}">
@@ -99,7 +99,7 @@
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <ProgressBar Classes="busy" IsIndeterminate="True" IsVisible="{Binding IsDialing}" />
+        <ProgressBar Classes="busy" IsVisible="{Binding IsDialing}" />
       </StackPanel>
     </Border>
 

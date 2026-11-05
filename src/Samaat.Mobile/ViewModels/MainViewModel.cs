@@ -30,7 +30,15 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _runtime.Audio.Changed += (_, _) => _post(RefreshBanner);
         SyncDevices();
         RefreshBanner();
+        RefreshMotion();
     }
+
+    /// <summary>The phone asks for no animations: the view stops the ring's glide, the busy sweep and the press scale.</summary>
+    [ObservableProperty]
+    public partial bool ReduceMotion { get; set; }
+
+    /// <summary>Reads the phone's animation setting again (the Android activity calls this on resume).</summary>
+    public void RefreshMotion() => ReduceMotion = _runtime.Platform.PrefersReducedMotion;
 
     public ComputerViewModel Computer { get; }
 
@@ -91,6 +99,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _runtime.Platform.KeepLinkAlive(true);
         await _runtime.StartAsync();
         RefreshBanner();
+        RefreshMotion();
     }
 
     [RelayCommand]

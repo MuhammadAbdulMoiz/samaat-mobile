@@ -156,6 +156,10 @@ internal sealed class AndroidMobilePlatform(Context context, AndroidPhoneAudio a
         return audio.Blocker is null;
     }
 
+    // "Remove animations" (accessibility) sets the animator duration scale to 0.
+    public bool PrefersReducedMotion =>
+        global::Android.Provider.Settings.Global.GetFloat(context.ContentResolver, global::Android.Provider.Settings.Global.AnimatorDurationScale, 1f) == 0f;
+
     public void OpenBluetoothSettings()
     {
         var adapter = (context.GetSystemService(Context.BluetoothService) as BluetoothManager)?.Adapter;

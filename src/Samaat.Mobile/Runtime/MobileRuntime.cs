@@ -21,6 +21,12 @@ public interface IMobilePlatform
 
     /// <summary>Keeps the computer link alive while the app is in the background (Android: a foreground service).</summary>
     void KeepLinkAlive(bool enabled);
+
+    /// <summary>
+    /// The phone asks apps to remove animations (Android: "Remove animations" in accessibility settings, which sets the
+    /// animator duration scale to 0). Read again whenever the app comes back to the foreground.
+    /// </summary>
+    bool PrefersReducedMotion => false;
 }
 
 public sealed class NoMobilePlatform : IMobilePlatform
@@ -30,6 +36,9 @@ public sealed class NoMobilePlatform : IMobilePlatform
     public int PermissionRequests { get; private set; }
 
     public int SettingsOpened { get; private set; }
+
+    /// <summary>Tests and the preview set it to stand in for the phone's "Remove animations" setting.</summary>
+    public bool PrefersReducedMotion { get; set; }
 
     public Task<bool> RequestPermissionsAsync()
     {

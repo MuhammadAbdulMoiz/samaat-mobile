@@ -30,6 +30,8 @@ public class MainActivity : AvaloniaMainActivity<MobileApp>
         var runtime = AndroidHost.Get(this);
         runtime.Computer.Wake();
         AndroidHost.Audio?.Refresh();
+        // "Remove animations" may have changed while Samaat was in the background.
+        MobileApp.Shell?.RefreshMotion();
     }
 
     protected override void OnPause()

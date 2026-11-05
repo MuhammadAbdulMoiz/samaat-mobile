@@ -4,7 +4,8 @@
   <!-- The desktop's design system (docs/design/ui-audit.md) at phone sizes. Colours come from the shared Tokens.axaml,
        shape and type from the shared Metrics.axaml, and the phone's own sizes from Metrics.Mobile.axaml. -->
 
-  <Style Selector="UserControl.shell">
+  <!-- :is() because a type selector matches the exact StyleKey: "UserControl.shell" never reached MainView -->
+  <Style Selector=":is(UserControl).shell">
     <Setter Property="Background" Value="{DynamicResource Samaat.Bg}" />
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
     <Setter Property="FontSize" Value="{StaticResource Samaat.Mobile.FontSize.Body}" />
@@ -268,7 +269,9 @@
     <Setter Property="Minimum" Value="0" />
     <Setter Property="Maximum" Value="100" />
   </Style>
+  <!-- A busy bar sweeps only during a real wait. The sweep comes from here, never a local value, so reduced motion can stop it. -->
   <Style Selector="ProgressBar.busy">
+    <Setter Property="IsIndeterminate" Value="True" />
     <Setter Property="Height" Value="3" />
     <Setter Property="MinHeight" Value="3" />
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Accent}" />
@@ -328,5 +331,22 @@
   </Style>
   <Style Selector="Button.option.selected Border.optionIcon PathIcon">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.OnAccent}" />
+  </Style>
+
+  <!-- Reduced motion (the phone's "Remove animations", a class on the root view: Android has no window). As on the
+       desktop: values jump instead of gliding, the busy bar holds still at half opacity, presses don't shrink.
+       Loaded after Artwork.axaml, so this wins over the ring's shared glide. -->
+  <Style Selector=":is(UserControl).reduce-motion ui|BatteryRing">
+    <Setter Property="Transitions">
+      <Transitions />
+    </Setter>
+  </Style>
+  <Style Selector=":is(UserControl).reduce-motion ProgressBar.busy">
+    <Setter Property="IsIndeterminate" Value="False" />
+    <Setter Property="Value" Value="100" />
+    <Setter Property="Opacity" Value="0.5" />
+  </Style>
+  <Style Selector=":is(UserControl).reduce-motion Button:pressed">
+    <Setter Property="RenderTransform" Value="none" />
   </Style>
 </Styles>

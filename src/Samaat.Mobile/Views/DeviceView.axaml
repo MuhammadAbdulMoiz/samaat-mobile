@@ -124,7 +124,7 @@
                 VerticalAlignment="Center" />
         <Button Grid.Column="1" Classes="subtle" Content="Disconnect" Command="{Binding DisconnectCommand}" IsVisible="{Binding ShowDisconnect}"
                 VerticalAlignment="Center" />
-        <ProgressBar Grid.Column="1" Classes="busy" IsIndeterminate="True" Width="64" IsVisible="{Binding IsLinkBusy}" VerticalAlignment="Center" />
+        <ProgressBar Grid.Column="1" Classes="busy" Width="64" IsVisible="{Binding IsLinkBusy}" VerticalAlignment="Center" />
       </Grid>
 
       <Border Classes="alert" Classes.critical="{Binding AlertIsCritical}" IsVisible="{Binding HasAlert}" HorizontalAlignment="Left">
@@ -144,7 +144,7 @@
     <!-- Move to and from the computer: works with any earbuds -->
     <Border Classes="panel">
       <StackPanel Spacing="12">
-        <ProgressBar Classes="busy" IsIndeterminate="True" IsVisible="{Binding ShowProgress}" Margin="-16,-16,-16,0" />
+        <ProgressBar Classes="busy" IsVisible="{Binding ShowProgress}" Margin="-16,-16,-16,0" />
         <Grid ColumnDefinitions="Auto,*">
           <Border Classes="optionIcon" Classes.on="{Binding IsComputerOnline}" VerticalAlignment="Center">
             <PathIcon Data="{StaticResource Icon.Laptop}" Width="16" Height="16" />
@@ -226,7 +226,7 @@
                     <PathIcon Data="{Binding IconKey, Converter={x:Static uic:UiConverters.IconByKey}}" Width="16" Height="16" />
                   </Border>
                   <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Label}" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding Label}" FontWeight="SemiBold" TextWrapping="Wrap" />
                     <TextBlock Text="{Binding Description}" Classes="meta" TextWrapping="Wrap" />
                   </StackPanel>
                   <PathIcon Grid.Column="2" Data="{StaticResource Icon.Check}" Width="14" Height="14" VerticalAlignment="Center"
@@ -258,7 +258,7 @@
               <Button Classes="option" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}"
                       AutomationProperties.Name="{Binding Label}">
                 <Grid ColumnDefinitions="*,Auto">
-                  <TextBlock Text="{Binding Label}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding Label}" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" />
                   <PathIcon Grid.Column="1" Data="{StaticResource Icon.Check}" Width="14" Height="14" VerticalAlignment="Center"
                             Foreground="{DynamicResource Samaat.Accent}" IsVisible="{Binding IsSelected}" />
                 </Grid>

@@ -8,7 +8,8 @@ namespace Samaat.Mobile.Views;
 
 public partial class MainView : UserControl
 {
-    private static readonly Thickness NavBarPadding = new(8, 6);
+    // Matches Border.navBar in Mobile.axaml; the bottom grows by the gesture bar's height.
+    private static readonly Thickness NavBarPadding = new(8, 4);
 
     private TopLevel? _topLevel;
     private IInsetsManager? _insets;

@@ -130,6 +130,17 @@ public sealed class DesignSystemTests
         Assert.Empty(offGrid);
     }
 
+    /// <summary>
+    /// Busy bars sweep through the ProgressBar.busy style, never a local IsIndeterminate: a local value beats every
+    /// style, so reduced motion couldn't stop the sweep.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(MarkupFiles))]
+    public void Markup_LeavesTheBusySweepToTheStyle(string file)
+    {
+        Assert.Empty(Violations(file, new Regex(@"\bIsIndeterminate=""")));
+    }
+
     [Theory]
     [MemberData(nameof(MarkupFiles))]
     public void Markup_DoesNotUseTheSparkleIcon(string file)
