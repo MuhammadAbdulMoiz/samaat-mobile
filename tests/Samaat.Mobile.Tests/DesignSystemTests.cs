@@ -102,6 +102,34 @@ public sealed class DesignSystemTests
         Assert.Empty(Violations(file, Attribute("(MinHeight|MinWidth|Width|Height)", "44")));
     }
 
+    /// <summary>Hierarchy comes from size, not weight: no 700 to 900 weights in phone markup (unslop).</summary>
+    [Theory]
+    [MemberData(nameof(MarkupFiles))]
+    public void Markup_UsesWeightsUpTo600(string file)
+    {
+        Assert.Empty(Violations(file, Attribute("FontWeight", "(Bold|ExtraBold|UltraBold|Black|Heavy|ExtraBlack|UltraBlack|[7-9]00)")));
+    }
+
+    /// <summary>
+    /// Margins, paddings and gaps sit on the 4 px grid, with a 2 px half step for nudges inside small controls (unslop).
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(MarkupFiles))]
+    public void Markup_SpacingIsOnThe4pxGrid(string file)
+    {
+        var spacing = new Regex(@"(?:\b(?:Margin|Padding|Spacing|RowSpacing|ColumnSpacing)=""|Property=""(?:Margin|Padding|Spacing|RowSpacing|ColumnSpacing)""\s+Value="")([-0-9., ]+)""");
+        var offGrid = File.ReadAllLines(Path.Combine(Root.FullName, file))
+            .Select((line, i) => (line, number: i + 1))
+            .SelectMany(l => spacing.Matches(l.line).Select(m => (l.number, value: m.Groups[1].Value)))
+            .Where(m => m.value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Select(v => Math.Abs(double.Parse(v, System.Globalization.CultureInfo.InvariantCulture)))
+                .Any(v => v % 4 != 0 && v != 2))
+            .Select(m => $"{file}:{m.number}: {m.value}")
+            .ToList();
+
+        Assert.Empty(offGrid);
+    }
+
     [Theory]
     [MemberData(nameof(MarkupFiles))]
     public void Markup_DoesNotUseTheSparkleIcon(string file)

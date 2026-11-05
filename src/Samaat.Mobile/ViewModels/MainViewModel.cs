@@ -175,7 +175,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
         else if (!_runtime.Audio.IsBluetoothOn)
         {
-            BannerText = "Bluetooth is off.";
+            BannerText = "Bluetooth is off";
             BannerAction = "Turn on";
         }
         else

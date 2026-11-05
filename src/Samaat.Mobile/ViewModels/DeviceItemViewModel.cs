@@ -439,11 +439,11 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
         ShowPairComputer = computer is null;
         var there = Address is null ? null : link.ComputerDevices.FirstOrDefault(d => d.Address == Address);
         ComputerStateText =
-            computer is null ? "Pair Samaat with your computer to move these earbuds between it and this phone, even if they connect to one device at a time."
+            computer is null ? "Pair Samaat with your computer to move these earbuds between it and this phone, even if they connect to one device at a time"
             : !IsComputerOnline ? $"Can't reach {name}. Samaat must be running there, on the same Wi-Fi."
-            : Address is null ? "Samaat doesn't know these earbuds' Bluetooth address."
-            : there is null ? $"{name} doesn't have these earbuds paired."
-            : !there.CanConnect ? $"{name} can't connect these earbuds from Samaat."
+            : Address is null ? "Samaat doesn't know these earbuds' Bluetooth address"
+            : there is null ? $"{name} doesn't have these earbuds paired"
+            : !there.CanConnect ? $"{name} can't connect these earbuds from Samaat"
             : there.Connected ? $"Playing on {name}"
             : IsConnected ? $"{name} can take these earbuds"
             : $"Not connected to {name} or this phone";
@@ -483,10 +483,10 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
         SummaryIsLow = urgent is { IsCritical: false };
         AlertIsCritical = SummaryIsCritical;
         AlertText = urgent is null ? null : $"{urgent.Label} {(urgent.IsCritical ? "critically low" : "low")} · {urgent.Value}%";
-        BatteryReasonText = _battery is null ? "This device reports no battery level."
-            : Battery.Count == 0 ? IsConnected ? "Waiting for a reading." : "Connect the earbuds to read their battery."
-            : Battery.Any(c => c.Component is BatteryComponent.Left or BatteryComponent.Right) ? "Each level is reported by the earbuds."
-            : "Left, right and case aren't reported for this device.";
+        BatteryReasonText = _battery is null ? "This device reports no battery level"
+            : Battery.Count == 0 ? IsConnected ? "Waiting for a reading" : "Connect the earbuds to read their battery"
+            : Battery.Any(c => c.Component is BatteryComponent.Left or BatteryComponent.Right) ? "Each level is reported by the earbuds"
+            : "Left, right and case aren't reported for this device";
         OnPropertyChanged(nameof(HasBattery));
     }
 
@@ -508,7 +508,7 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
                 mode switch
                 {
                     NoiseMode.NoiseCancelling => "Icon.NoiseCancelling",
-                    NoiseMode.Adaptive => "Icon.Sparkle",
+                    NoiseMode.Adaptive => "Icon.Adaptive",
                     NoiseMode.Transparency => "Icon.Transparency",
                     _ => "Icon.CircleOff",
                 }));

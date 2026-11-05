@@ -252,7 +252,7 @@ public sealed class MobileTests : IAsyncDisposable
         await StartAsync();
 
         Assert.True(_viewModel.HasBanner);
-        Assert.Equal("Bluetooth is off.", _viewModel.BannerText);
+        Assert.Equal("Bluetooth is off", _viewModel.BannerText);
         await _viewModel.FixBannerCommand.ExecuteAsync(null);
         Assert.Equal(1, ((NoMobilePlatform)_runtime.Platform).SettingsOpened);
     }
@@ -315,6 +315,32 @@ public sealed class MobileTests : IAsyncDisposable
 
         await PairAsync(() => AssertButtonsAccessible("pairing code"));
         AssertButtonsAccessible("paired computer");
+    }
+
+    /// <summary>One-sentence captions are labels, not paragraphs: no full stop (the desktop's unslop rule).</summary>
+    [AvaloniaFact]
+    public async Task Captions_EndWithoutAFullStop()
+    {
+        await StartAsync();
+        var buds = _viewModel.Devices.Single(d => d.Name == "Simulated Buds Pro");
+        var headset = _viewModel.Devices.Single(d => d.Name == "Simulated Headset");
+
+        Assert.False(buds.BatteryReasonText!.EndsWith('.'), buds.BatteryReasonText);
+        Assert.False(headset.BatteryReasonText!.EndsWith('.'), headset.BatteryReasonText);
+        Assert.False(buds.ComputerStateText!.EndsWith('.'), buds.ComputerStateText);
+        var markup = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "Samaat.Mobile", "Views", "ComputerView.axaml"));
+        Assert.DoesNotContain("tap Pair on both.\"", markup);
+    }
+
+    /// <summary>The sparkle reads as "AI magic"; Adaptive gets the desktop's sound-wave icon (unslop).</summary>
+    [AvaloniaFact]
+    public async Task NoiseModes_UseIconsThatNameWhatTheyDo()
+    {
+        await StartAsync();
+        var buds = _viewModel.Devices.Single(d => d.Name == "Simulated Buds Pro");
+
+        Assert.Equal("Icon.Adaptive", buds.NoiseModes.Single(m => m.Label == "Adaptive").IconKey);
+        Assert.DoesNotContain(buds.NoiseModes, m => m.IconKey == "Icon.Sparkle");
     }
 
     [AvaloniaFact]

@@ -15,7 +15,7 @@
 
   <Style Selector="TextBlock.display">
     <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
-    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
   <Style Selector="TextBlock.alertText">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Warn}" />
@@ -33,7 +33,7 @@
   <Style Selector="TextBlock.title">
     <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
     <Setter Property="FontSize" Value="{StaticResource Samaat.FontSize.Title}" />
-    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
   <Style Selector="TextBlock.panelTitle">
     <Setter Property="FontSize" Value="{StaticResource Samaat.Mobile.FontSize.PanelTitle}" />
@@ -67,7 +67,7 @@
   <Style Selector="Border.row">
     <Setter Property="BorderBrush" Value="{DynamicResource Samaat.Border}" />
     <Setter Property="BorderThickness" Value="0,1,0,0" />
-    <Setter Property="Padding" Value="0,10" />
+    <Setter Property="Padding" Value="0,12" />
   </Style>
   <Style Selector="Border.iconTile">
     <Setter Property="Width" Value="40" />
@@ -99,7 +99,7 @@
   <Style Selector="Border.alert">
     <Setter Property="Background" Value="{DynamicResource Samaat.WarnSoft}" />
     <Setter Property="CornerRadius" Value="{StaticResource Samaat.Mobile.Radius.Control}" />
-    <Setter Property="Padding" Value="12,10" />
+    <Setter Property="Padding" Value="12,8" />
   </Style>
   <Style Selector="Border.alert TextBlock">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Warn}" />
@@ -121,7 +121,7 @@
     <Setter Property="BorderBrush" Value="{DynamicResource Samaat.Border}" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="CornerRadius" Value="{StaticResource Samaat.Mobile.Radius.Overlay}" />
-    <Setter Property="Padding" Value="14,10" />
+    <Setter Property="Padding" Value="12,8" />
   </Style>
 
   <!-- Buttons: the touch target high -->
@@ -200,7 +200,7 @@
     <Setter Property="HorizontalAlignment" Value="Stretch" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="MinHeight" Value="{StaticResource Samaat.Mobile.Size.OptionRow}" />
-    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="Padding" Value="8,8" />
     <Setter Property="CornerRadius" Value="{StaticResource Samaat.Mobile.Radius.Control}" />
   </Style>
   <Style Selector="Button.option /template/ ContentPresenter#PART_ContentPresenter">
@@ -213,8 +213,9 @@
     <Setter Property="Background" Value="{DynamicResource Samaat.Surface2}" />
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
   </Style>
+  <!-- Selection is a neutral surface step with an accent hairline, a lit tile and a check: the accent marks one thing -->
   <Style Selector="Button.option.selected /template/ ContentPresenter#PART_ContentPresenter, Button.option.selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="Background" Value="{DynamicResource Samaat.AccentSoft}" />
+    <Setter Property="Background" Value="{DynamicResource Samaat.Surface2}" />
     <Setter Property="BorderBrush" Value="{DynamicResource Samaat.Accent}" />
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
   </Style>
@@ -224,7 +225,7 @@
     <Setter Property="Background" Value="{DynamicResource Samaat.Rail}" />
     <Setter Property="BorderBrush" Value="{DynamicResource Samaat.Border}" />
     <Setter Property="BorderThickness" Value="0,1,0,0" />
-    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="Padding" Value="8,4" />
   </Style>
   <Style Selector="Button.nav">
     <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -246,11 +247,12 @@
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Muted}" />
     <Setter Property="FontSize" Value="{StaticResource Samaat.Mobile.FontSize.Label}" />
   </Style>
+  <!-- The current tab is a neutral key; only its glyph is lit, like the desktop sidebar's current row -->
   <Style Selector="Button.nav.selected /template/ ContentPresenter#PART_ContentPresenter, Button.nav.selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="Background" Value="{DynamicResource Samaat.AccentSoft}" />
+    <Setter Property="Background" Value="{DynamicResource Samaat.Surface2}" />
   </Style>
   <Style Selector="Button.nav.selected PathIcon">
-    <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
+    <Setter Property="Foreground" Value="{DynamicResource Samaat.Accent}" />
   </Style>
   <Style Selector="Button.nav.selected TextBlock">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
@@ -278,7 +280,7 @@
     <Setter Property="FontSize" Value="{StaticResource Samaat.Mobile.FontSize.Unit}" />
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Muted}" />
     <Setter Property="VerticalAlignment" Value="Bottom" />
-    <Setter Property="Margin" Value="2,0,0,5" />
+    <Setter Property="Margin" Value="2,0,0,4" />
   </Style>
   <Style Selector="TextBlock.number">
     <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
@@ -317,7 +319,7 @@
   <Style Selector="Border.optionIcon.on PathIcon">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.OnAccent}" />
   </Style>
-  <!-- Muted text on accent-soft is 4.45:1 in dark mode, just under AA, so a selected row's description uses the text colour. -->
+  <!-- A selected row's description uses the text colour, so the row reads as chosen without a coloured fill -->
   <Style Selector="Button.option.selected TextBlock.meta">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
   </Style>

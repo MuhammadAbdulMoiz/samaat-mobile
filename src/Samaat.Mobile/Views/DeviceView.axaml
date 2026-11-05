@@ -19,7 +19,7 @@
           <ItemsControl Classes="artworkParts" ItemsSource="{Binding ArtworkParts}" IsVisible="{Binding ShowArtworkParts}"
                         HorizontalAlignment="Center" VerticalAlignment="Center">
             <ItemsControl.ItemsPanel>
-              <ItemsPanelTemplate><Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="20" RowSpacing="6" /></ItemsPanelTemplate>
+              <ItemsPanelTemplate><Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="20" RowSpacing="8" /></ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:ArtworkPartViewModel">
@@ -38,7 +38,7 @@
           </ItemsControl>
 
           <!-- Unknown look, separate pieces: faint left bud, right bud and case, each with its level -->
-          <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="20" RowSpacing="6"
+          <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="20" RowSpacing="8"
                 HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding ShowUnknownPieces}">
             <StackPanel Classes="artworkPart" Classes.missing="{Binding !Pieces[0].HasLevel}" Spacing="2"
                         AutomationProperties.Name="{Binding Pieces[0].AccessibleText}">
@@ -93,7 +93,7 @@
           </Panel>
         </Panel>
       </Border>
-      <Button Classes="ghost" Content="Change look" HorizontalAlignment="Center" Margin="0,-10,0,0" FontSize="{StaticResource Samaat.Mobile.FontSize.Meta}"
+      <Button Classes="ghost" Content="Change look" HorizontalAlignment="Center" Margin="0,-8,0,0" FontSize="{StaticResource Samaat.Mobile.FontSize.Meta}"
               Foreground="{DynamicResource Samaat.Muted}" AutomationProperties.Name="Change look">
         <Button.Flyout>
           <MenuFlyout Placement="Bottom" ItemsSource="{Binding LookOptions}">
@@ -128,13 +128,13 @@
       </Grid>
 
       <Border Classes="alert" Classes.critical="{Binding AlertIsCritical}" IsVisible="{Binding HasAlert}" HorizontalAlignment="Left">
-        <StackPanel Orientation="Horizontal" Spacing="6">
+        <StackPanel Orientation="Horizontal" Spacing="8">
           <PathIcon Data="{StaticResource Icon.Warning}" Width="14" Height="14" />
           <TextBlock Text="{Binding AlertText}" FontSize="{StaticResource Samaat.Mobile.FontSize.Meta}" FontWeight="SemiBold" />
         </StackPanel>
       </Border>
       <Border Classes="alert critical" IsVisible="{Binding HasError}">
-        <StackPanel Orientation="Horizontal" Spacing="6">
+        <StackPanel Orientation="Horizontal" Spacing="8">
           <PathIcon Data="{StaticResource Icon.Warning}" Width="14" Height="14" VerticalAlignment="Top" Margin="0,2,0,0" />
           <TextBlock Text="{Binding ErrorText}" TextWrapping="Wrap" FontWeight="SemiBold" MaxWidth="320" />
         </StackPanel>
@@ -161,12 +161,12 @@
         <Button Classes="subtle" HorizontalAlignment="Stretch" Content="Pair with a computer" Command="{Binding PairComputerCommand}"
                 IsVisible="{Binding ShowPairComputer}" />
         <TextBlock Text="{Binding ProgressText}" Classes="meta" IsVisible="{Binding ShowProgress}" TextWrapping="Wrap" />
-        <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding ShowSuccess}">
+        <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding ShowSuccess}">
           <PathIcon Data="{StaticResource Icon.Check}" Width="14" Height="14" Foreground="{DynamicResource Samaat.Accent}" VerticalAlignment="Top" Margin="0,2,0,0" />
           <TextBlock Text="{Binding ResultText}" Classes="meta" TextWrapping="Wrap" MaxWidth="320" />
         </StackPanel>
         <Border Classes="alert critical" IsVisible="{Binding ShowFailure}">
-          <StackPanel Orientation="Horizontal" Spacing="6">
+          <StackPanel Orientation="Horizontal" Spacing="8">
             <PathIcon Data="{StaticResource Icon.Warning}" Width="14" Height="14" VerticalAlignment="Top" Margin="0,2,0,0" />
             <TextBlock Text="{Binding ResultText}" TextWrapping="Wrap" FontWeight="SemiBold" MaxWidth="300" />
           </StackPanel>
