@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # "Run workflow" on the Actions tab, e.g. to build a fresh APK.
+  workflow_dispatch:
+
+jobs:
+  test:
+    # The phone UI and its tests, headless, with phone-sized screenshots.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet build Samaat.Mobile.slnx -c Release
+      - run: dotnet test Samaat.Mobile.slnx -c Release --no-build
+        env:
+          SAMAAT_SCREENSHOTS: ${{ github.workspace }}/artifacts/screenshots
+      - uses: actions/upload-artifact@v4
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          name: screenshots
+          path: artifacts/screenshots
+
+  android:
+    # The APK. Needs the Android workload and SDK (the SDK is preinstalled on GitHub's Ubuntu runners).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: '17'
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet workload install android
+      - name: Install the Android platform the app targets
+        run: dotnet build src/Samaat.Android/Samaat.Android.csproj -t:InstallAndroidDependencies -p:AndroidSdkDirectory="$ANDROID_HOME" -p:AcceptAndroidSDKLicenses=True
+      - name: Build the APK
+        run: dotnet publish src/Samaat.Android/Samaat.Android.csproj -c Release -p:AndroidSdkDirectory="$ANDROID_HOME" -o artifacts/apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: samaat-android-apk
+          path: artifacts/apk/*-Signed.apk

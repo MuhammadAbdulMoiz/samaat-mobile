@@ -1,0 +1,12 @@
+<Project>
+  <!-- Same compiler settings as the desktop repo, from the shared code in the submodule. -->
+  <Import Project="external/samaat.io/Directory.Build.props" Condition="Exists('external/samaat.io/Directory.Build.props')" />
+  <PropertyGroup>
+    <!-- The desktop repo (git submodule): Core, the phone link, the design system, drivers, protocols and devices/. -->
+    <SamaatShared>$(MSBuildThisFileDirectory)external/samaat.io/</SamaatShared>
+  </PropertyGroup>
+  <Target Name="SamaatCheckShared" BeforeTargets="Restore;_LoadRestoreGraphEntryPoints;CollectPackageReferences;Build"
+          Condition="!Exists('$(SamaatShared)src/Samaat.Core/Samaat.Core.csproj')">
+    <Error Text="The shared code (external/samaat.io) is missing. Run: git submodule update --init" />
+  </Target>
+</Project>

@@ -1,0 +1,4 @@
+<Project>
+  <!-- One list of package versions for both repos: the desktop repo's (submodule). -->
+  <Import Project="external/samaat.io/Directory.Packages.props" Condition="Exists('external/samaat.io/Directory.Packages.props')" />
+</Project>
