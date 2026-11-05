@@ -28,5 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Samaat.Mobile\Samaat.Mobile.csproj" />
     <ProjectReference Include="..\Samaat.Platform.Android\Samaat.Platform.Android.csproj" />
+    <!-- The one list of shipped drivers (Jieli, Fast Pair, Bose), shared with the desktop app and CLI. -->
+    <ProjectReference Include="$(SamaatShared)src\Samaat.Drivers\Samaat.Drivers.csproj" />
   </ItemGroup>
 </Project>

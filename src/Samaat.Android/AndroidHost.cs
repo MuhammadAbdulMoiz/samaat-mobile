@@ -3,9 +3,9 @@ using Android.Bluetooth;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
-using Samaat.Core.Drivers;
 using Samaat.Core.Profiles;
 using Samaat.Core.Settings;
+using Samaat.Drivers;
 using Samaat.Handoff.Storage;
 using Samaat.Mobile.Runtime;
 using Samaat.Platform.Android;
@@ -41,9 +41,8 @@ internal static class AndroidHost
             _audio = new AndroidPhoneAudio(app, prompt);
             // The same devices/ folder as the desktop: driver catalog, model profiles and artwork photos.
             var devices = ExtractDevices(app);
-            var registry = new DriverRegistry(DeviceCatalog.FromDirectory(devices));
-            registry.Register(new Samaat.Protocols.Jieli.JieliDriver());
-            registry.Register(new Samaat.Protocols.FastPair.FastPairDriver());
+            // Every shipped driver (Jieli, Fast Pair, Bose) from the one list the desktop app and CLI use too.
+            var registry = BuiltInDrivers.CreateRegistry(devices);
             var store = new PeerStore(Path.Combine(app.FilesDir!.AbsolutePath, "computers.json"));
             _runtime = new MobileRuntime(
                 [new AndroidDeviceSource(app, _audio, registry)],
