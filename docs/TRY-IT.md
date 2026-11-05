@@ -5,7 +5,7 @@ You need two repos: the desktop app ([samaat.io](https://github.com/MuhammadAbdu
 ```bash
 git clone --recursive https://github.com/MuhammadAbdulMoiz/samaat-mobile.git
 git clone https://github.com/MuhammadAbdulMoiz/samaat.io.git
-cd samaat.io && git checkout claude/phone-handoff && cd ..
+cd samaat.io && git checkout feature/ui-redesign && cd ..
 ```
 
 ## 1. The desktop app (Windows laptop)
@@ -33,6 +33,8 @@ The preview opens the phone app in a phone-sized window. Its earbuds are the sam
 3. On the desktop, go to **Settings → Phone → Pair a phone**. When Windows asks, **allow Samaat on private networks**.
 4. In the phone window, open the **Computer** tab and tap **Pair** next to your computer. Check that both windows show the same code, then tap **Pair** in both.
 5. Open **Simulated Buds Pro** in either app and press **Move to …** or **Bring … here**.
+
+To see how the phone screens cope with awkward data, start the preview with `-- --simulate=worst` (long, short, right-to-left and emoji names, 0 % and 100 %, missing readings) or `-- --simulate=empty` (no earbuds). These earbuds don't exist on the desktop, so they can't be moved.
 
 To start over, **Forget** the phone in the desktop's Settings, and **Forget this computer** on the phone. The preview keeps its pairing in `%LOCALAPPDATA%\Samaat\phone-preview`.
 
@@ -63,7 +65,7 @@ To start over, **Forget** the phone in the desktop's Settings, and **Forget this
 4. Pair: on the desktop, **Settings → Phone → Pair a phone**; on the phone, **Computer → Pair**. Compare the codes.
 5. Move your real earbuds from either side. If Android shows the audio output picker or a notification, tap your earbuds: most Android phones don't let apps connect headphones silently.
 
-Please note what happened, using the [hardware checklist](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/claude/phone-handoff/docs/plans/2026-11-04-phone-handoff.md#hardware-check-not-doable-in-ci).
+Please note what happened, using the [hardware checklist](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/plans/2026-11-04-phone-handoff.md#hardware-check-not-doable-in-ci).
 
 ## 4. iPhone
 
