@@ -7,6 +7,8 @@
       <ResourceDictionary.MergedDictionaries>
         <ResourceInclude Source="avares://Samaat.UI/Styles/Icons.axaml" />
         <ResourceInclude Source="avares://Samaat.UI/Styles/Tokens.axaml" />
+        <ResourceInclude Source="avares://Samaat.UI/Styles/Metrics.axaml" />
+        <ResourceInclude Source="avares://Samaat.Mobile/Styles/Metrics.Mobile.axaml" />
       </ResourceDictionary.MergedDictionaries>
       <FontFamily x:Key="DisplayFont">avares://Samaat.UI/Assets/Fonts#Space Grotesk</FontFamily>
     </ResourceDictionary>

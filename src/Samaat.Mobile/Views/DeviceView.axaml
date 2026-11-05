@@ -93,7 +93,7 @@
           </Panel>
         </Panel>
       </Border>
-      <Button Classes="ghost" Content="Change look" HorizontalAlignment="Center" Margin="0,-10,0,0" FontSize="13"
+      <Button Classes="ghost" Content="Change look" HorizontalAlignment="Center" Margin="0,-10,0,0" FontSize="{StaticResource Samaat.Mobile.FontSize.Meta}"
               Foreground="{DynamicResource Samaat.Muted}" AutomationProperties.Name="Change look">
         <Button.Flyout>
           <MenuFlyout Placement="Bottom" ItemsSource="{Binding LookOptions}">
@@ -102,7 +102,7 @@
                 <Setter Property="Header" Value="{Binding Label}" />
                 <Setter Property="Command" Value="{Binding Select}" />
                 <Setter Property="AutomationProperties.Name" Value="{Binding AccessibleName}" />
-                <Setter Property="MinHeight" Value="44" />
+                <Setter Property="MinHeight" Value="{StaticResource Samaat.Mobile.Size.Touch}" />
               </ControlTheme>
             </MenuFlyout.ItemContainerTheme>
           </MenuFlyout>
@@ -130,7 +130,7 @@
       <Border Classes="alert" Classes.critical="{Binding AlertIsCritical}" IsVisible="{Binding HasAlert}" HorizontalAlignment="Left">
         <StackPanel Orientation="Horizontal" Spacing="6">
           <PathIcon Data="{StaticResource Icon.Warning}" Width="14" Height="14" />
-          <TextBlock Text="{Binding AlertText}" FontSize="13" FontWeight="SemiBold" />
+          <TextBlock Text="{Binding AlertText}" FontSize="{StaticResource Samaat.Mobile.FontSize.Meta}" FontWeight="SemiBold" />
         </StackPanel>
       </Border>
       <Border Classes="alert critical" IsVisible="{Binding HasError}">
