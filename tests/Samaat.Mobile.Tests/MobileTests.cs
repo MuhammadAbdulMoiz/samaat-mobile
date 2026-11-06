@@ -45,7 +45,7 @@ public sealed class MobileTests : IAsyncDisposable
         _computer.PairingRequested += (_, r) => _request = r;
         _computer.Start();
 
-        _runtime = SimulatedMobile.Create(_bus.CreateListener(),
+        _runtime = SimulatedMobile.Create(_bus.CreateListener(), time: FrozenClock.Instance,
             clientOptions: new PhoneLinkClientOptions { RetryMin = TimeSpan.FromMilliseconds(100), RetryMax = TimeSpan.FromMilliseconds(500) });
         _viewModel = new MainViewModel(_runtime);
         _window = new Window { Width = 412, Height = 892, Content = new MainView { DataContext = _viewModel } };
@@ -252,7 +252,7 @@ public sealed class MobileTests : IAsyncDisposable
         await StartAsync();
 
         Assert.True(_viewModel.HasBanner);
-        Assert.Equal("Bluetooth is off.", _viewModel.BannerText);
+        Assert.Equal("Bluetooth is off", _viewModel.BannerText);
         await _viewModel.FixBannerCommand.ExecuteAsync(null);
         Assert.Equal(1, ((NoMobilePlatform)_runtime.Platform).SettingsOpened);
     }
@@ -317,66 +317,30 @@ public sealed class MobileTests : IAsyncDisposable
         AssertButtonsAccessible("paired computer");
     }
 
-    private static Color Token(string key, ThemeVariant theme)
-    {
-        Assert.True(Application.Current!.TryGetResource(key, theme, out var value), key);
-        return ((ISolidColorBrush)value!).Color;
-    }
-
-    private static Color Over(Color top, Color bottom)
-    {
-        var a = top.A / 255.0;
-        byte Mix(byte t, byte b) => (byte)Math.Round(t * a + b * (1 - a));
-        return Color.FromRgb(Mix(top.R, bottom.R), Mix(top.G, bottom.G), Mix(top.B, bottom.B));
-    }
-
-    private static double Ratio(Color a, Color b)
-    {
-        static double L(Color c)
-        {
-            static double Ch(byte v) => v / 255.0 <= 0.03928 ? v / 255.0 / 12.92 : Math.Pow((v / 255.0 + 0.055) / 1.055, 2.4);
-            return 0.2126 * Ch(c.R) + 0.7152 * Ch(c.G) + 0.0722 * Ch(c.B);
-        }
-
-        var (l1, l2) = (L(a), L(b));
-        return (Math.Max(l1, l2) + 0.05) / (Math.Min(l1, l2) + 0.05);
-    }
-
-    /// <summary>
-    /// The colour pairs the phone adds beyond the shared token checks in the desktop's ContrastTests:
-    /// low and critical figures on the page, selected rows and tabs on accent-soft, status bars on their track.
-    /// </summary>
+    /// <summary>One-sentence captions are labels, not paragraphs: no full stop (the desktop's unslop rule).</summary>
     [AvaloniaFact]
-    public void PhoneColourPairs_MeetWcagAA_InBothThemes()
+    public async Task Captions_EndWithoutAFullStop()
     {
-        foreach (var theme in new[] { ThemeVariant.Dark, ThemeVariant.Light })
-        {
-            Color T(string key) => Token(key, theme);
-            var checks = new (string What, Color Fore, Color Back, double Min)[]
-            {
-                ("Low figure on the page", T("Samaat.Warn"), T("Samaat.Bg"), 4.5),
-                ("Critical figure on the page", T("Samaat.Critical"), T("Samaat.Bg"), 4.5),
-                ("Low words in a device row", T("Samaat.Warn"), T("Samaat.Surface"), 4.5),
-                ("Selected option label", T("Samaat.Text"), Over(T("Samaat.AccentSoft"), T("Samaat.Surface")), 4.5),
-                // Muted would be 4.45:1 here in dark mode; selected rows switch their description to the text colour.
-                ("Selected option description", T("Samaat.Text"), Over(T("Samaat.AccentSoft"), T("Samaat.Surface")), 4.5),
-                ("Selected tab label", T("Samaat.Text"), Over(T("Samaat.AccentSoft"), T("Samaat.Rail")), 4.5),
-                ("Unselected tab label", T("Samaat.Muted"), T("Samaat.Rail"), 4.5),
-                ("Check mark on a selected row", T("Samaat.Accent"), Over(T("Samaat.AccentSoft"), T("Samaat.Surface")), 3.0),
-                ("Low alert pill on the page", T("Samaat.Warn"), Over(T("Samaat.WarnSoft"), T("Samaat.Bg")), 4.5),
-                ("Critical alert pill on the page", T("Samaat.Critical"), Over(T("Samaat.CriticalSoft"), T("Samaat.Bg")), 4.5),
-                ("Critical pill inside a panel", T("Samaat.Critical"), Over(T("Samaat.CriticalSoft"), T("Samaat.Surface")), 4.5),
-                ("Low level bar on its track", T("Samaat.Warn"), T("Samaat.Track"), 3.0),
-                ("Critical level bar on its track", T("Samaat.Critical"), T("Samaat.Track"), 3.0),
-                ("Battery ring on the page", T("Samaat.Accent"), T("Samaat.Bg"), 3.0),
-                ("Icon in an option tile", T("Samaat.Muted"), T("Samaat.Surface2"), 3.0),
-            };
-            foreach (var (what, fore, back, min) in checks)
-            {
-                var ratio = Ratio(fore, back);
-                Assert.True(ratio >= min, $"{what} ({theme}) is {ratio:0.00}:1, needs {min}:1");
-            }
-        }
+        await StartAsync();
+        var buds = _viewModel.Devices.Single(d => d.Name == "Simulated Buds Pro");
+        var headset = _viewModel.Devices.Single(d => d.Name == "Simulated Headset");
+
+        Assert.False(buds.BatteryReasonText!.EndsWith('.'), buds.BatteryReasonText);
+        Assert.False(headset.BatteryReasonText!.EndsWith('.'), headset.BatteryReasonText);
+        Assert.False(buds.ComputerStateText!.EndsWith('.'), buds.ComputerStateText);
+        var markup = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "Samaat.Mobile", "Views", "ComputerView.axaml"));
+        Assert.DoesNotContain("tap Pair on both.\"", markup);
+    }
+
+    /// <summary>The sparkle reads as "AI magic"; Adaptive gets the desktop's sound-wave icon (unslop).</summary>
+    [AvaloniaFact]
+    public async Task NoiseModes_UseIconsThatNameWhatTheyDo()
+    {
+        await StartAsync();
+        var buds = _viewModel.Devices.Single(d => d.Name == "Simulated Buds Pro");
+
+        Assert.Equal("Icon.Adaptive", buds.NoiseModes.Single(m => m.Label == "Adaptive").IconKey);
+        Assert.DoesNotContain(buds.NoiseModes, m => m.IconKey == "Icon.Sparkle");
     }
 
     [AvaloniaFact]

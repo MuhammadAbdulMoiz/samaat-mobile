@@ -2,6 +2,7 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
+using Samaat.Mobile.Diagnostics;
 
 namespace Samaat.Android;
 
@@ -46,14 +47,15 @@ public sealed class LinkService : Service
                 StartForeground(NotificationId, notification);
             }
         }
-        catch (Java.Lang.Exception)
+        catch (Java.Lang.Exception ex)
         {
             // Android 14 refuses a connected-device service until the Bluetooth permission is granted.
+            MobileLog.Error("Going to the foreground", ex);
             StopSelf();
             return StartCommandResult.NotSticky;
         }
 
-        _ = AndroidHost.Get(this).StartAsync();
+        AndroidHost.Get(this).StartAsync().Observe("Starting the computer link from the service");
         return StartCommandResult.Sticky;
     }
 }

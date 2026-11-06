@@ -20,8 +20,6 @@
     <ProjectReference Include="$(SamaatShared)src\Samaat.UI\Samaat.UI.csproj" />
     <ProjectReference Include="$(SamaatShared)src\Samaat.Handoff\Samaat.Handoff.csproj" />
     <ProjectReference Include="$(SamaatShared)src\Samaat.Simulator\Samaat.Simulator.csproj" />
-    <ProjectReference Include="$(SamaatShared)src\Samaat.Protocols.Jieli\Samaat.Protocols.Jieli.csproj" />
-    <ProjectReference Include="$(SamaatShared)src\Samaat.Protocols.FastPair\Samaat.Protocols.FastPair.csproj" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Samaat.Mobile.Tests" />

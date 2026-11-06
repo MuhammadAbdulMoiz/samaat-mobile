@@ -24,8 +24,9 @@
 
 - **Move your earbuds between the phone and your computer**, from either one, even earbuds that connect to one device at a time. The computer checks the phone, disconnects them there, and the phone connects them. If that doesn't happen, they go back where they were.
 - **Pair once by comparing a code.** The two apps talk over your Wi-Fi with an encrypted link: no account, no server.
-- **Battery, noise control and EQ**, with the desktop's drivers (Jieli RCSP, Google Fast Pair, the BLE Battery Service) and the desktop's device photos.
-- **Looks like the desktop app**: same design system, same logo, same artwork.
+- **Battery, noise control and EQ**, with the desktop's drivers (Jieli RCSP, Google Fast Pair, Bose BMAP, the BLE Battery Service) from the same driver list (`Samaat.Drivers.BuiltInDrivers`), and the desktop's device photos.
+- **Looks like the desktop app**: same design tokens, same logo, same artwork, with larger touch targets and type for a phone.
+- **Follows the phone's "Remove animations" setting**: the battery ring jumps instead of gliding and busy bars hold still.
 
 Android doesn't let apps connect a headset silently on most phones, so a move may ask you to tap your earbuds once in Android's audio output picker. There's no iPhone app: iOS doesn't let apps connect or disconnect Bluetooth headphones at all.
 
@@ -43,7 +44,21 @@ cd samaat-mobile
 # Already cloned without it?  git submodule update --init
 
 dotnet run --project src/Samaat.Mobile.Preview      # the phone app in a window on your computer
-dotnet test Samaat.Mobile.slnx                      # tests (set SAMAAT_SCREENSHOTS=<dir> to save screenshots)
+dotnet run --project src/Samaat.Mobile.Preview -- --simulate=worst   # stress data: long, RTL and emoji names, missing readings
+dotnet run --project src/Samaat.Mobile.Preview -- --simulate=empty   # no earbuds at all
+dotnet test Samaat.Mobile.slnx                      # tests
+```
+
+Two environment variables save images while the tests run:
+
+| Variable | Saves |
+|---|---|
+| `SAMAAT_SCREENSHOTS=<dir>` | the phone-sized screenshots in `docs/images` (dark and light) |
+| `SAMAAT_STRESS_SCREENSHOTS=<dir>` | the worst-case and empty frames, at 412 and 360 px, in both themes |
+
+The renders use a frozen clock, so a re-run gives the same images except for the random pairing code.
+
+```bash
 ```
 
 The Android app needs the Android workload and SDK:
@@ -63,7 +78,8 @@ src/
   Samaat.Platform.Android/   Android Bluetooth audio, paired devices, RFCOMM and GATT
   Samaat.Android/            the Android app: activity, foreground service, permissions
 tests/
-  Samaat.Mobile.Tests/       the phone UI headless, against a real computer link; accessibility checks; screenshots
+  Samaat.Mobile.Tests/       the phone UI headless, against a real computer link; layering, design-system, contrast,
+                             accessibility, stress and motion checks; screenshots
 external/samaat.io/          the desktop repo (submodule): Core, phone link, design system, drivers, protocols, devices/
 ```
 
@@ -72,19 +88,30 @@ external/samaat.io/          the desktop repo (submodule): Core, phone link, des
 | `Samaat.Mobile.slnx` | Everything that builds without the Android SDK. CI builds and tests it on Linux and Windows. |
 | `Samaat.Mobile.Android.slnx` | Everything, including the Android app. |
 
-The two repos share one copy of the code they have in common. `Directory.Build.props` and `Directory.Packages.props` import the desktop repo's, so compiler settings and package versions match too. The design, protocol and security notes live in the desktop repo: [phone handoff](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/claude/phone-handoff/docs/modules/phone-handoff.md), [plan](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/claude/phone-handoff/docs/plans/2026-11-04-phone-handoff.md), [design system](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/claude/phone-handoff/docs/design/ui-audit.md).
+**Layering**, checked by `ArchitectureTests`:
+
+- `Samaat.Mobile` references only shared projects (Core, UI, Handoff, the simulator), never a vendor protocol, the driver list or a platform.
+- `Samaat.Platform.Android` implements Core, Transport and Handoff contracts and depends on no phone project.
+- `Samaat.Android` and the preview are the only composition roots; only `Samaat.Android` picks the drivers (`BuiltInDrivers`) and the Android platform.
+- Every project a solution builds is in it.
+
+**Design system**, checked by `DesignSystemTests` and `ContrastTests`: colours come from the shared `Tokens.axaml`, shape and type from the shared `Metrics.axaml`, and the few values a phone needs to differ (44 px touch targets, a type ramp one step up) from `src/Samaat.Mobile/Styles/Metrics.Mobile.axaml`. Markup holds no hex colours, literal font sizes, shadows, tokenised radii or literal touch targets; spacing sits on the 4 px grid; weights stop at 600.
+
+**Decisions** are recorded in [`docs/decisions/`](docs/decisions/), one file per change, in the desktop repo's style.
+
+The two repos share one copy of the code they have in common. `Directory.Build.props` and `Directory.Packages.props` import the desktop repo's, so compiler settings and package versions match too. The design, protocol and security notes live in the desktop repo: [phone handoff](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/modules/phone-handoff.md), [plan](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/plans/2026-11-04-phone-handoff.md), [architecture](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/ARCHITECTURE.md), [design system](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/design/ui-audit.md).
 
 ### Updating the shared code
 
-The submodule follows the desktop repo's `claude/phone-handoff` branch until that is merged:
+The submodule follows the desktop repo's integration branch, `feature/ui-redesign`:
 
 ```bash
 git submodule update --remote external/samaat.io    # move to the latest shared code
 git add external/samaat.io && git commit -m "Update shared code"
 ```
 
-After the desktop branch is merged, switch the submodule to `master`: `git submodule set-branch --branch master external/samaat.io`, then update as above.
+Then build and run the tests: a change in the shared tokens or APIs shows up here first. When the desktop renames its integration branch (to `dev`) or releases from `master`, switch with `git submodule set-branch --branch <branch> external/samaat.io` and update as above.
 
 ## Status
 
-Built and tested in CI with simulated earbuds; the Android app hasn't been run on a phone yet. Please try it and report what happens, using the [hardware checklist](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/claude/phone-handoff/docs/plans/2026-11-04-phone-handoff.md#hardware-check-not-doable-in-ci).
+Built and tested in CI with simulated earbuds; the Android app hasn't been run on a phone yet. Please try it and report what happens, using the [hardware checklist](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/plans/2026-11-04-phone-handoff.md#hardware-check-not-doable-in-ci).

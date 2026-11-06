@@ -1,12 +1,14 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="using:Samaat.UI.Controls">
-  <!-- The desktop's design system (docs/design/ui-audit.md) at phone sizes: 44 px touch targets, 15 px body text. -->
+  <!-- The desktop's design system (docs/design/ui-audit.md) at phone sizes. Colours come from the shared Tokens.axaml,
+       shape and type from the shared Metrics.axaml, and the phone's own sizes from Metrics.Mobile.axaml. -->
 
-  <Style Selector="UserControl.shell">
+  <!-- :is() because a type selector matches the exact StyleKey: "UserControl.shell" never reached MainView -->
+  <Style Selector=":is(UserControl).shell">
     <Setter Property="Background" Value="{DynamicResource Samaat.Bg}" />
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
-    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontSize" Value="{StaticResource Samaat.Mobile.FontSize.Body}" />
   </Style>
   <Style Selector="Window">
     <Setter Property="Background" Value="{DynamicResource Samaat.Bg}" />
@@ -14,7 +16,7 @@
 
   <Style Selector="TextBlock.display">
     <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
-    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
   <Style Selector="TextBlock.alertText">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Warn}" />
@@ -31,28 +33,28 @@
   </Style>
   <Style Selector="TextBlock.title">
     <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
-    <Setter Property="FontSize" Value="22" />
-    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="FontSize" Value="{StaticResource Samaat.FontSize.Title}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
   <Style Selector="TextBlock.panelTitle">
-    <Setter Property="FontSize" Value="16" />
+    <Setter Property="FontSize" Value="{StaticResource Samaat.Mobile.FontSize.PanelTitle}" />
     <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
   <Style Selector="TextBlock.figure">
     <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
-    <Setter Property="FontSize" Value="26" />
+    <Setter Property="FontSize" Value="{StaticResource Samaat.Mobile.FontSize.Figure}" />
     <Setter Property="FontWeight" Value="SemiBold" />
     <Setter Property="FontFeatures" Value="+tnum" />
   </Style>
   <Style Selector="TextBlock.code">
     <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
-    <Setter Property="FontSize" Value="40" />
+    <Setter Property="FontSize" Value="{StaticResource Samaat.Mobile.FontSize.Code}" />
     <Setter Property="FontWeight" Value="SemiBold" />
     <Setter Property="LetterSpacing" Value="2" />
     <Setter Property="FontFeatures" Value="+tnum" />
   </Style>
   <Style Selector="TextBlock.meta">
-    <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontSize" Value="{StaticResource Samaat.Mobile.FontSize.Meta}" />
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Muted}" />
   </Style>
 
@@ -60,18 +62,18 @@
     <Setter Property="Background" Value="{DynamicResource Samaat.Surface}" />
     <Setter Property="BorderBrush" Value="{DynamicResource Samaat.PanelEdge}" />
     <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="CornerRadius" Value="14" />
+    <Setter Property="CornerRadius" Value="{StaticResource Samaat.Mobile.Radius.Panel}" />
     <Setter Property="Padding" Value="16" />
   </Style>
   <Style Selector="Border.row">
     <Setter Property="BorderBrush" Value="{DynamicResource Samaat.Border}" />
     <Setter Property="BorderThickness" Value="0,1,0,0" />
-    <Setter Property="Padding" Value="0,10" />
+    <Setter Property="Padding" Value="0,12" />
   </Style>
   <Style Selector="Border.iconTile">
     <Setter Property="Width" Value="40" />
     <Setter Property="Height" Value="40" />
-    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="CornerRadius" Value="{StaticResource Samaat.Mobile.Radius.Control}" />
     <Setter Property="Background" Value="{DynamicResource Samaat.Surface2}" />
   </Style>
   <Style Selector="Border.iconTile PathIcon">
@@ -97,8 +99,8 @@
 
   <Style Selector="Border.alert">
     <Setter Property="Background" Value="{DynamicResource Samaat.WarnSoft}" />
-    <Setter Property="CornerRadius" Value="10" />
-    <Setter Property="Padding" Value="12,10" />
+    <Setter Property="CornerRadius" Value="{StaticResource Samaat.Mobile.Radius.Control}" />
+    <Setter Property="Padding" Value="12,8" />
   </Style>
   <Style Selector="Border.alert TextBlock">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Warn}" />
@@ -119,17 +121,17 @@
     <Setter Property="Background" Value="{DynamicResource Samaat.Surface2}" />
     <Setter Property="BorderBrush" Value="{DynamicResource Samaat.Border}" />
     <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="CornerRadius" Value="12" />
-    <Setter Property="Padding" Value="14,10" />
+    <Setter Property="CornerRadius" Value="{StaticResource Samaat.Mobile.Radius.Overlay}" />
+    <Setter Property="Padding" Value="12,8" />
   </Style>
 
-  <!-- Buttons: 44 px high -->
+  <!-- Buttons: the touch target high -->
   <Style Selector="Button.primary, Button.subtle, Button.ghost, Button.icon">
-    <Setter Property="MinHeight" Value="44" />
-    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="MinHeight" Value="{StaticResource Samaat.Mobile.Size.Touch}" />
+    <Setter Property="CornerRadius" Value="{StaticResource Samaat.Mobile.Radius.Control}" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
-    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontSize" Value="{StaticResource Samaat.Mobile.FontSize.Body}" />
   </Style>
   <Style Selector="Button.primary, Button.subtle">
     <Setter Property="Padding" Value="16,0" />
@@ -156,7 +158,7 @@
   </Style>
   <Style Selector="Button.ghost">
     <Setter Property="Padding" Value="12,0" />
-    <Setter Property="MinWidth" Value="44" />
+    <Setter Property="MinWidth" Value="{StaticResource Samaat.Mobile.Size.Touch}" />
   </Style>
   <Style Selector="Button.ghost">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
@@ -166,7 +168,7 @@
     <Setter Property="BorderThickness" Value="0" />
   </Style>
   <Style Selector="Button.icon">
-    <Setter Property="Width" Value="44" />
+    <Setter Property="Width" Value="{StaticResource Samaat.Mobile.Size.Touch}" />
     <Setter Property="Padding" Value="0" />
   </Style>
   <Style Selector="Button.icon PathIcon">
@@ -180,8 +182,8 @@
     <Setter Property="HorizontalAlignment" Value="Stretch" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="Padding" Value="16" />
-    <Setter Property="CornerRadius" Value="14" />
-    <Setter Property="MinHeight" Value="72" />
+    <Setter Property="CornerRadius" Value="{StaticResource Samaat.Mobile.Radius.Panel}" />
+    <Setter Property="MinHeight" Value="{StaticResource Samaat.Mobile.Size.DeviceRow}" />
   </Style>
   <Style Selector="Button.deviceRow /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{DynamicResource Samaat.Surface}" />
@@ -198,9 +200,9 @@
   <Style Selector="Button.option">
     <Setter Property="HorizontalAlignment" Value="Stretch" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-    <Setter Property="MinHeight" Value="52" />
-    <Setter Property="Padding" Value="8,6" />
-    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="MinHeight" Value="{StaticResource Samaat.Mobile.Size.OptionRow}" />
+    <Setter Property="Padding" Value="8,8" />
+    <Setter Property="CornerRadius" Value="{StaticResource Samaat.Mobile.Radius.Control}" />
   </Style>
   <Style Selector="Button.option /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="Transparent" />
@@ -212,8 +214,9 @@
     <Setter Property="Background" Value="{DynamicResource Samaat.Surface2}" />
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
   </Style>
+  <!-- Selection is a neutral surface step with an accent hairline, a lit tile and a check: the accent marks one thing -->
   <Style Selector="Button.option.selected /template/ ContentPresenter#PART_ContentPresenter, Button.option.selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="Background" Value="{DynamicResource Samaat.AccentSoft}" />
+    <Setter Property="Background" Value="{DynamicResource Samaat.Surface2}" />
     <Setter Property="BorderBrush" Value="{DynamicResource Samaat.Accent}" />
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
   </Style>
@@ -223,13 +226,13 @@
     <Setter Property="Background" Value="{DynamicResource Samaat.Rail}" />
     <Setter Property="BorderBrush" Value="{DynamicResource Samaat.Border}" />
     <Setter Property="BorderThickness" Value="0,1,0,0" />
-    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="Padding" Value="8,4" />
   </Style>
   <Style Selector="Button.nav">
     <Setter Property="HorizontalAlignment" Value="Stretch" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
-    <Setter Property="MinHeight" Value="56" />
-    <Setter Property="CornerRadius" Value="12" />
+    <Setter Property="MinHeight" Value="{StaticResource Samaat.Mobile.Size.Nav}" />
+    <Setter Property="CornerRadius" Value="{StaticResource Samaat.Mobile.Radius.Overlay}" />
   </Style>
   <Style Selector="Button.nav /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="Transparent" />
@@ -243,13 +246,14 @@
   </Style>
   <Style Selector="Button.nav TextBlock">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Muted}" />
-    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontSize" Value="{StaticResource Samaat.Mobile.FontSize.Label}" />
   </Style>
+  <!-- The current tab is a neutral key; only its glyph is lit, like the desktop sidebar's current row -->
   <Style Selector="Button.nav.selected /template/ ContentPresenter#PART_ContentPresenter, Button.nav.selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="Background" Value="{DynamicResource Samaat.AccentSoft}" />
+    <Setter Property="Background" Value="{DynamicResource Samaat.Surface2}" />
   </Style>
   <Style Selector="Button.nav.selected PathIcon">
-    <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
+    <Setter Property="Foreground" Value="{DynamicResource Samaat.Accent}" />
   </Style>
   <Style Selector="Button.nav.selected TextBlock">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
@@ -259,13 +263,15 @@
     <Setter Property="Height" Value="4" />
     <Setter Property="MinWidth" Value="0" />
     <Setter Property="MinHeight" Value="4" />
-    <Setter Property="CornerRadius" Value="2" />
+    <Setter Property="CornerRadius" Value="{StaticResource Samaat.Radius.Hairline}" />
     <Setter Property="Background" Value="{DynamicResource Samaat.Track}" />
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Accent}" />
     <Setter Property="Minimum" Value="0" />
     <Setter Property="Maximum" Value="100" />
   </Style>
+  <!-- A busy bar sweeps only during a real wait. The sweep comes from here, never a local value, so reduced motion can stop it. -->
   <Style Selector="ProgressBar.busy">
+    <Setter Property="IsIndeterminate" Value="True" />
     <Setter Property="Height" Value="3" />
     <Setter Property="MinHeight" Value="3" />
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Accent}" />
@@ -274,10 +280,10 @@
 
   <!-- The desktop's figures: value and unit apart; low and critical colour the number and the bar, and always come with words -->
   <Style Selector="TextBlock.unit">
-    <Setter Property="FontSize" Value="14" />
+    <Setter Property="FontSize" Value="{StaticResource Samaat.Mobile.FontSize.Unit}" />
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Muted}" />
     <Setter Property="VerticalAlignment" Value="Bottom" />
-    <Setter Property="Margin" Value="2,0,0,5" />
+    <Setter Property="Margin" Value="2,0,0,4" />
   </Style>
   <Style Selector="TextBlock.number">
     <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
@@ -304,7 +310,7 @@
   <Style Selector="Border.optionIcon">
     <Setter Property="Width" Value="36" />
     <Setter Property="Height" Value="36" />
-    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="CornerRadius" Value="{StaticResource Samaat.Radius.Tile}" />
     <Setter Property="Background" Value="{DynamicResource Samaat.Surface2}" />
   </Style>
   <Style Selector="Border.optionIcon PathIcon">
@@ -316,7 +322,7 @@
   <Style Selector="Border.optionIcon.on PathIcon">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.OnAccent}" />
   </Style>
-  <!-- Muted text on accent-soft is 4.45:1 in dark mode, just under AA, so a selected row's description uses the text colour. -->
+  <!-- A selected row's description uses the text colour, so the row reads as chosen without a coloured fill -->
   <Style Selector="Button.option.selected TextBlock.meta">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
   </Style>
@@ -325,5 +331,22 @@
   </Style>
   <Style Selector="Button.option.selected Border.optionIcon PathIcon">
     <Setter Property="Foreground" Value="{DynamicResource Samaat.OnAccent}" />
+  </Style>
+
+  <!-- Reduced motion (the phone's "Remove animations", a class on the root view: Android has no window). As on the
+       desktop: values jump instead of gliding, the busy bar holds still at half opacity, presses don't shrink.
+       Loaded after Artwork.axaml, so this wins over the ring's shared glide. -->
+  <Style Selector=":is(UserControl).reduce-motion ui|BatteryRing">
+    <Setter Property="Transitions">
+      <Transitions />
+    </Setter>
+  </Style>
+  <Style Selector=":is(UserControl).reduce-motion ProgressBar.busy">
+    <Setter Property="IsIndeterminate" Value="False" />
+    <Setter Property="Value" Value="100" />
+    <Setter Property="Opacity" Value="0.5" />
+  </Style>
+  <Style Selector=":is(UserControl).reduce-motion Button:pressed">
+    <Setter Property="RenderTransform" Value="none" />
   </Style>
 </Styles>

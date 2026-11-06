@@ -3,10 +3,11 @@ using Android.Bluetooth;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
-using Samaat.Core.Drivers;
 using Samaat.Core.Profiles;
 using Samaat.Core.Settings;
+using Samaat.Drivers;
 using Samaat.Handoff.Storage;
+using Samaat.Mobile.Diagnostics;
 using Samaat.Mobile.Runtime;
 using Samaat.Platform.Android;
 
@@ -37,13 +38,14 @@ internal static class AndroidHost
             }
 
             var app = context.ApplicationContext ?? context;
+            // Errors the phone handles but mustn't hide: also to logcat, under the tag "Samaat".
+            MobileLog.Written += line => global::Android.Util.Log.Warn("Samaat", line);
             var prompt = new AndroidUserPrompt(app, () => Foreground, Resource.Drawable.icon);
             _audio = new AndroidPhoneAudio(app, prompt);
             // The same devices/ folder as the desktop: driver catalog, model profiles and artwork photos.
             var devices = ExtractDevices(app);
-            var registry = new DriverRegistry(DeviceCatalog.FromDirectory(devices));
-            registry.Register(new Samaat.Protocols.Jieli.JieliDriver());
-            registry.Register(new Samaat.Protocols.FastPair.FastPairDriver());
+            // Every shipped driver (Jieli, Fast Pair, Bose) from the one list the desktop app and CLI use too.
+            var registry = BuiltInDrivers.CreateRegistry(devices);
             var store = new PeerStore(Path.Combine(app.FilesDir!.AbsolutePath, "computers.json"));
             _runtime = new MobileRuntime(
                 [new AndroidDeviceSource(app, _audio, registry)],
@@ -89,9 +91,10 @@ internal static class AndroidHost
         {
             Copy("devices", root);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // A failed copy leaves what an earlier start extracted; the app still runs without models or photos.
+            MobileLog.Error("Extracting the devices/ assets", ex);
         }
 
         return root;
@@ -157,6 +160,10 @@ internal sealed class AndroidMobilePlatform(Context context, AndroidPhoneAudio a
         return audio.Blocker is null;
     }
 
+    // "Remove animations" (accessibility) sets the animator duration scale to 0.
+    public bool PrefersReducedMotion =>
+        global::Android.Provider.Settings.Global.GetFloat(context.ContentResolver, global::Android.Provider.Settings.Global.AnimatorDurationScale, 1f) == 0f;
+
     public void OpenBluetoothSettings()
     {
         var adapter = (context.GetSystemService(Context.BluetoothService) as BluetoothManager)?.Adapter;
@@ -178,9 +185,10 @@ internal sealed class AndroidMobilePlatform(Context context, AndroidPhoneAudio a
         {
             context.StartForegroundService(intent);
         }
-        catch (Java.Lang.Exception)
+        catch (Java.Lang.Exception ex)
         {
             // Not allowed right now (app in the background on Android 12+); the link still runs while the app is open.
+            MobileLog.Error("Starting the link service", ex);
         }
     }
 }

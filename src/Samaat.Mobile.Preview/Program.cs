@@ -19,7 +19,8 @@ internal static class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        MobileApp.RuntimeFactory = CreateRuntime;
+        var scenario = ScenarioFrom(args);
+        MobileApp.RuntimeFactory = () => CreateRuntime(scenario);
         AppBuilder.Configure<MobileApp>()
             .UsePlatformDetect()
             .WithInterFont()
@@ -27,10 +28,22 @@ internal static class Program
             .StartWithClassicDesktopLifetime(args);
     }
 
-    private static MobileRuntime CreateRuntime()
+    /// <summary>
+    /// <c>--simulate=worst</c> or <c>--simulate=empty</c>: the desktop's stress data sets, for checking the phone UI
+    /// against long, short, right-to-left and emoji names, missing readings, or no earbuds at all.
+    /// </summary>
+    internal static SimulatorScenario ScenarioFrom(IEnumerable<string> args) =>
+        args.Select(a => a.ToLowerInvariant()).FirstOrDefault(a => a.StartsWith("--simulate=", StringComparison.Ordinal)) switch
+        {
+            "--simulate=worst" => SimulatorScenario.WorstCase,
+            "--simulate=empty" => SimulatorScenario.Empty,
+            _ => SimulatorScenario.Demo,
+        };
+
+    private static MobileRuntime CreateRuntime(SimulatorScenario scenario)
     {
         var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Samaat", "phone-preview");
-        var source = new SimulatorDeviceSource(TimeSpan.FromSeconds(2));
+        var source = new SimulatorDeviceSource(TimeSpan.FromSeconds(2), scenario: scenario);
         foreach (var device in source.Devices)
         {
             device.SetConnected(false);

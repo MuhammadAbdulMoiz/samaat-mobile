@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Samaat.Mobile.Diagnostics;
 using Samaat.Mobile.Runtime;
 
 namespace Samaat.Mobile.ViewModels;
@@ -30,7 +31,15 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _runtime.Audio.Changed += (_, _) => _post(RefreshBanner);
         SyncDevices();
         RefreshBanner();
+        RefreshMotion();
     }
+
+    /// <summary>The phone asks for no animations: the view stops the ring's glide, the busy sweep and the press scale.</summary>
+    [ObservableProperty]
+    public partial bool ReduceMotion { get; set; }
+
+    /// <summary>Reads the phone's animation setting again (the Android activity calls this on resume).</summary>
+    public void RefreshMotion() => ReduceMotion = _runtime.Platform.PrefersReducedMotion;
 
     public ComputerViewModel Computer { get; }
 
@@ -81,6 +90,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     public bool HasMessage => Message is not null;
 
+    /// <summary>Starts without waiting (the app's entry point): a failure is logged and shown, never lost.</summary>
+    public void Start() =>
+        StartAsync().Observe("Starting the phone app",
+            _ => _post(() => ShowMessage("Samaat couldn't start everything. Close and reopen the app to try again.")));
+
     public async Task StartAsync()
     {
         if (_runtime.Audio.Blocker is not null)
@@ -91,6 +105,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _runtime.Platform.KeepLinkAlive(true);
         await _runtime.StartAsync();
         RefreshBanner();
+        RefreshMotion();
     }
 
     [RelayCommand]
@@ -150,6 +165,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private Task RefreshAsync() => _runtime.Registry.RefreshAsync();
 
+    /// <summary>The empty list's way out: earbuds are paired in the phone's Bluetooth settings, not in Samaat.</summary>
+    [RelayCommand]
+    private Task OpenBluetoothSettingsAsync()
+    {
+        _runtime.Platform.OpenBluetoothSettings();
+        return Task.CompletedTask;
+    }
+
     public void ShowMessage(string text)
     {
         Message = text;
@@ -175,7 +198,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
         else if (!_runtime.Audio.IsBluetoothOn)
         {
-            BannerText = "Bluetooth is off.";
+            BannerText = "Bluetooth is off";
             BannerAction = "Turn on";
         }
         else
