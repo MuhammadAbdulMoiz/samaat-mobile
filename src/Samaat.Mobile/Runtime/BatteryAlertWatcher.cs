@@ -84,16 +84,16 @@ public sealed class BatteryAlertWatcher : IDisposable
 
     private void SyncDevices()
     {
-        var current = _registry.Devices
-            .Select(d => (Device: d, Feature: d.GetFeature<IBatteryFeature>()))
-            .Where(d => d.Feature is not null)
-            .GroupBy(d => d.Device.Identity.Id)
-            .ToDictionary(g => g.Key, g => g.First());
-
         var added = new List<(IEarbudDevice Device, IBatteryFeature Feature, EventHandler<BatteryState> Handler)>();
-        var dropped = new List<Watch>();
         lock (_gate)
         {
+            // Read the registry inside the lock: two overlapping refreshes then apply in order, never an older list last.
+            var current = _registry.Devices
+                .Select(d => (Device: d, Feature: d.GetFeature<IBatteryFeature>()))
+                .Where(d => d.Feature is not null)
+                .GroupBy(d => d.Device.Identity.Id)
+                .ToDictionary(g => g.Key, g => g.First());
+
             if (_disposed)
             {
                 return;
@@ -105,7 +105,8 @@ public sealed class BatteryAlertWatcher : IDisposable
                 {
                     _watching.Remove(id);
                     _detector.Forget(id);
-                    dropped.Add(watch);
+                    // Unsubscribed under the lock, so a concurrent refresh can never resubscribe a dropped watch.
+                    watch.Feature.Changed -= watch.Handler;
                 }
             }
 
@@ -116,19 +117,14 @@ public sealed class BatteryAlertWatcher : IDisposable
                     var name = device.Identity.Name;
                     EventHandler<BatteryState> handler = (_, state) => Evaluate(id, name, state);
                     _watching[id] = new Watch(feature!, handler);
+                    feature!.Changed += handler;
                     added.Add((device, feature!, handler));
                 }
             }
         }
 
-        foreach (var watch in dropped)
+        foreach (var (device, feature, _) in added)
         {
-            watch.Feature.Changed -= watch.Handler;
-        }
-
-        foreach (var (device, feature, handler) in added)
-        {
-            feature.Changed += handler;
             // A device that is already low when it appears alerts once, as the desktop does.
             Evaluate(device.Identity.Id, device.Identity.Name, feature.Current);
         }

@@ -116,7 +116,8 @@ internal static class AndroidHost
     // replace the first's completion source, leaving its caller waiting forever.
     private static readonly SemaphoreSlim PermissionGate = new(1, 1);
 
-    public static async Task<bool> RequestPermissionsAsync(string[] permissions)
+    /// <summary>True when all were granted, false when refused, null when no activity was on screen to ask from.</summary>
+    public static async Task<bool?> RequestPermissionsAsync(string[] permissions)
     {
         if (permissions.Length == 0)
         {
@@ -128,7 +129,7 @@ internal static class AndroidHost
         {
             if (Foreground is not { } activity)
             {
-                return false;
+                return null;
             }
 
             var pending = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -164,10 +165,7 @@ internal sealed class AndroidMobilePlatform(Context context, AndroidPhoneAudio a
             wanted.Add(global::Android.Manifest.Permission.BluetoothConnect);
         }
 
-        if (OperatingSystem.IsAndroidVersionAtLeast(33))
-        {
-            wanted.Add(global::Android.Manifest.Permission.PostNotifications);
-        }
+        // Notifications are asked separately, only when battery alerts use them (RequestNotificationPermissionAsync).
 
         var missing = wanted.Where(p => context.CheckSelfPermission(p) != Permission.Granted).ToArray();
         if (missing.Length > 0)
@@ -196,8 +194,13 @@ internal sealed class AndroidMobilePlatform(Context context, AndroidPhoneAudio a
                 return NotificationPermission.Unavailable;
             }
 
-            var granted = await AndroidHost.RequestPermissionsAsync([global::Android.Manifest.Permission.PostNotifications]);
-            return granted ? NotificationPermission.Granted : NotificationPermission.Denied;
+            // The activity can leave between the check above and the request: that is "ask later", not a refusal.
+            return await AndroidHost.RequestPermissionsAsync([global::Android.Manifest.Permission.PostNotifications]) switch
+            {
+                true => NotificationPermission.Granted,
+                false => NotificationPermission.Denied,
+                null => NotificationPermission.Unavailable,
+            };
         }
         catch (Exception ex)
         {
@@ -209,6 +212,10 @@ internal sealed class AndroidMobilePlatform(Context context, AndroidPhoneAudio a
     // "Remove animations" (accessibility) sets the animator duration scale to 0.
     public bool PrefersReducedMotion =>
         global::Android.Provider.Settings.Global.GetFloat(context.ContentResolver, global::Android.Provider.Settings.Global.AnimatorDurationScale, 1f) == 0f;
+
+    // "Font size" in the phone's display settings; Avalonia 11.3 doesn't read it, so FontScaling applies it.
+    public double FontScale =>
+        Math.Clamp(context.Resources?.Configuration?.FontScale ?? 1f, (float)FontScaling.MinScale, (float)FontScaling.MaxScale);
 
     public void OpenBluetoothSettings()
     {
