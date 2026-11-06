@@ -25,7 +25,7 @@
 
 - **Move your earbuds between the phone and your computer**, from either one, even earbuds that connect to one device at a time. The computer checks the phone, disconnects them there, and the phone connects them. If that doesn't happen, they go back where they were.
 - **Pair once by comparing a code.** The two apps talk over your Wi-Fi with an encrypted link: no account, no server.
-- **Battery, noise control and EQ**, with the desktop's drivers (Jieli RCSP, Google Fast Pair, Bose BMAP, the BLE Battery Service) from the same driver list (`Samaat.Drivers.BuiltInDrivers`), and the desktop's device photos.
+- **Battery, noise control and EQ**, with the desktop's drivers (Jieli RCSP, Google Fast Pair, Bose BMAP, Samsung Galaxy Buds, Soundcore, Sony, the BLE Battery Service) from the same driver list (`Samaat.Drivers.BuiltInDrivers`), and the desktop's device photos.
 - **Looks like the desktop app**: same design tokens, same logo, same artwork, with larger touch targets and type for a phone.
 - **Follows the phone's "Remove animations" setting**: the battery ring jumps instead of gliding and busy bars hold still.
 
@@ -100,23 +100,23 @@ external/samaat.io/          the desktop repo (submodule): Core, phone link, des
 
 **Decisions** are recorded in [`docs/decisions/`](docs/decisions/), one file per change, in the desktop repo's style.
 
-The two repos share one copy of the code they have in common. `Directory.Build.props` and `Directory.Packages.props` import the desktop repo's, so compiler settings and package versions match too. The design, protocol and security notes live in the desktop repo: [phone handoff](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/modules/phone-handoff.md), [plan](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/plans/2026-11-04-phone-handoff.md), [architecture](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/ARCHITECTURE.md), [design system](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/design/ui-audit.md).
+The two repos share one copy of the code they have in common. `Directory.Build.props` and `Directory.Packages.props` import the desktop repo's, so compiler settings and package versions match too. The design, protocol and security notes live in the desktop repo: [phone handoff](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/dev/docs/modules/phone-handoff.md), [plan](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/dev/docs/plans/2026-11-04-phone-handoff.md), [architecture](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/dev/docs/ARCHITECTURE.md), [design system](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/dev/docs/design/ui-audit.md).
 
 ### Updating the shared code
 
-The submodule follows the desktop repo's integration branch, `feature/ui-redesign`:
+The submodule follows the desktop repo's integration branch, `dev`:
 
 ```bash
 git submodule update --remote external/samaat.io    # move to the latest shared code
 git add external/samaat.io && git commit -m "Update shared code"
 ```
 
-Then build and run the tests: a change in the shared tokens or APIs shows up here first. When the desktop renames its integration branch (to `dev`) or releases from `master`, switch with `git submodule set-branch --branch <branch> external/samaat.io` and update as above.
+Then build and run the tests: a change in the shared tokens or APIs shows up here first. If the desktop moves its integration branch again, switch with `git submodule set-branch --branch <branch> external/samaat.io` and update as above.
 
 ## Status
 
-Built and tested in CI with simulated earbuds; the Android app hasn't been run on a phone yet. Please try it and report what happens, using the [hardware checklist](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/plans/2026-11-04-phone-handoff.md#hardware-check-not-doable-in-ci).
+Built and tested in CI with simulated earbuds; the Android app hasn't been run on a phone yet. Please try it and report what happens, using the [hardware checklist](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/dev/docs/plans/2026-11-04-phone-handoff.md#hardware-check-not-doable-in-ci).
 
 ## Licence
 
-Samaat for Android is free software: you can redistribute it and change it under the terms of the [GNU General Public License, version 3 or later](LICENSE), like the [desktop app](https://github.com/MuhammadAbdulMoiz/samaat.io#licence) whose code it builds. It comes with no warranty. Third-party code in the shared projects is listed in the desktop repo's [THIRD_PARTY_NOTICES.md](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/THIRD_PARTY_NOTICES.md).
+Samaat for Android is free software: you can redistribute it and change it under the terms of the [GNU General Public License, version 3 or later](LICENSE), like the [desktop app](https://github.com/MuhammadAbdulMoiz/samaat.io#licence) whose code it builds. It comes with no warranty. Third-party code in the shared projects is listed in the desktop repo's [THIRD_PARTY_NOTICES.md](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/dev/THIRD_PARTY_NOTICES.md).

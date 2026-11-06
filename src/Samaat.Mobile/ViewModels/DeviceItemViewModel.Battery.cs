@@ -61,6 +61,10 @@ public sealed partial class DeviceItemViewModel
             return;
         }
 
+        // As on the desktop: watch for a reading during the refresh (equal levels still count) and say so when none came.
+        var answered = false;
+        void OnReading(object? sender, BatteryState state) => answered = true;
+        _battery.Changed += OnReading;
         try
         {
             await _battery.RefreshAsync();
@@ -69,6 +73,16 @@ public sealed partial class DeviceItemViewModel
         {
             MobileLog.Error("refreshing the battery", ex);
             ErrorText = "Couldn't refresh the battery";
+            return;
+        }
+        finally
+        {
+            _battery.Changed -= OnReading;
+        }
+
+        if (!answered)
+        {
+            _onMessage($"{Name} sent no new battery reading. Samaat shows its next update as soon as it arrives.");
         }
     }
 

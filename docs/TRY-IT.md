@@ -5,7 +5,7 @@ You need two repos: the desktop app ([samaat.io](https://github.com/MuhammadAbdu
 ```bash
 git clone --recursive https://github.com/MuhammadAbdulMoiz/samaat-mobile.git
 git clone https://github.com/MuhammadAbdulMoiz/samaat.io.git
-cd samaat.io && git checkout feature/ui-redesign && cd ..
+cd samaat.io && git checkout dev && cd ..
 ```
 
 ## 1. The desktop app (Windows laptop)
@@ -65,7 +65,7 @@ To start over, **Forget** the phone in the desktop's Settings, and **Forget this
 4. Pair: on the desktop, **Settings → Phone → Pair a phone**; on the phone, **Computer → Pair**. Compare the codes.
 5. Move your real earbuds from either side. If Android shows the audio output picker or a notification, tap your earbuds: most Android phones don't let apps connect headphones silently.
 
-Please note what happened, using the [hardware checklist](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/plans/2026-11-04-phone-handoff.md#hardware-check-not-doable-in-ci).
+Please note what happened, using the [hardware checklist](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/dev/docs/plans/2026-11-04-phone-handoff.md#hardware-check-not-doable-in-ci).
 
 ## 4. iPhone
 

@@ -1,6 +1,6 @@
 # Desktop parity
 
-What the phone app has of the desktop app (`external/samaat.io/src/Samaat.App`), page by page. Checked on 2026-11-06 against the desktop's `feature/ui-redesign` at v1.1.0 (`4932ec7`).
+What the phone app has of the desktop app (`external/samaat.io/src/Samaat.App`), page by page. Checked on 2026-11-06 against the desktop's integration branch (then `feature/ui-redesign`, now `dev`) at v1.1.0 (`4932ec7`).
 
 **Done**: on the phone, with the desktop's wording. **N/A**: doesn't apply to a phone, or Android doesn't allow it. Nothing is left: every desktop page that makes sense on a phone is there. Ported desktop code (diagnostics, capability wording, multipoint, accent palette) names its source file in a header comment; moving it into shared code is a desktop follow-up.
 
