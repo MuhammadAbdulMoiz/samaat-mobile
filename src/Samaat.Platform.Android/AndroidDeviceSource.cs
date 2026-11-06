@@ -158,9 +158,15 @@ public sealed class AndroidDeviceSource : IDeviceSource
             }
         }
 
-        if (!features.Any(f => f is IBatteryFeature))
+        // The OS level always rides along: it fills in while a driver or GATT battery has nothing to show (Quantum read "–").
+        var os = new AndroidBatteryFeature(_context, bluetooth, address, _audio.IsConnected(address), _time);
+        if (features.OfType<IBatteryFeature>().FirstOrDefault() is { } primary)
         {
-            features.Add(new AndroidBatteryFeature(bluetooth, _time));
+            features[features.IndexOf(primary)] = new FallbackBatteryFeature(primary, os);
+        }
+        else
+        {
+            features.Add(os);
         }
 
         var identity = new DeviceIdentity(address, name, Tier: tier, Details: new DeviceDetails
@@ -257,43 +263,6 @@ internal sealed class AndroidEarbudDevice : IEarbudDevice, IAsyncDisposable
     }
 }
 
-/// <summary>
-/// The one battery level Android itself keeps for a headset (from HFP/AVRCP). It's behind a hidden method, read through
-/// reflection; on phones that refuse it the device simply reports no battery.
-/// </summary>
-internal sealed class AndroidBatteryFeature(BluetoothDevice device, TimeProvider time) : IBatteryFeature
-{
-    public IReadOnlySet<BatteryComponent> Components { get; } = new HashSet<BatteryComponent> { BatteryComponent.Combined };
-
-    public bool ComponentsAreExhaustive => false;
-
-    public CapabilitySource Source => CapabilitySource.OperatingSystem;
-
-    public Verification Verification => Verification.Unverified;
-
-    public BatteryState Current { get; private set; } = BatteryState.Empty;
-
-    public event EventHandler<BatteryState>? Changed;
-
-    public Task RefreshAsync(CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var method = device.Class.GetMethod("getBatteryLevel");
-            if (method.Invoke(device) is Java.Lang.Integer level && level.IntValue() is >= 0 and <= 100 and var percent)
-            {
-                Current = BatteryState.Empty.With(new BatteryReading(BatteryComponent.Combined, percent, time.GetUtcNow()));
-                Changed?.Invoke(this, Current);
-            }
-        }
-        catch (Java.Lang.Exception)
-        {
-            // Hidden method missing or refused on this phone.
-        }
-
-        return Task.CompletedTask;
-    }
-}
 
 /// <summary>RFCOMM and GATT to one device, for drivers.</summary>
 internal sealed class AndroidDeviceTransports(BluetoothDevice device, AndroidGattClient gatt) : IDeviceTransports

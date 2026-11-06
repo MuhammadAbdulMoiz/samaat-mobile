@@ -17,4 +17,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Samaat.Mobile\Samaat.Mobile.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Pure C# in the Android platform project (no Android types), compiled here so it can be unit-tested. -->
+    <Compile Include="..\..\src\Samaat.Platform.Android\FallbackBatteryFeature.cs" Link="Linked\FallbackBatteryFeature.cs" />
+  </ItemGroup>
 </Project>

@@ -18,10 +18,13 @@ public sealed class DeviceItemPartsTests
 
     private const string Address = "02:00:5E:10:00:01";
 
+    private static BatterySummary Summary(BatteryState? state, bool isConnected, BatteryAlertPolicy? policy = null) =>
+        BatterySummary.From(state, isConnected, policy ?? new BatteryAlertPolicy());
+
     [Fact]
     public void Battery_NoFeature_SaysTheDeviceReportsNone()
     {
-        var summary = BatterySummary.From(null, isConnected: true);
+        var summary = Summary(null, isConnected: true);
 
         Assert.Empty(summary.Cells);
         Assert.False(summary.HasSummary);
@@ -32,18 +35,34 @@ public sealed class DeviceItemPartsTests
         Assert.Null(summary.AlertText);
     }
 
+    [Fact]
+    public void Label_IsLowestBud_OnlyWhenABudHasALevel()
+    {
+        Assert.Equal("Lowest bud", Summary(State((BatteryComponent.Left, 90), (BatteryComponent.Right, 80)), true).Label);
+
+        var noBudLevels = Summary(State((BatteryComponent.Left, null), (BatteryComponent.Right, null), (BatteryComponent.Combined, 70)), true);
+        Assert.Equal("Battery", noBudLevels.Label);
+        Assert.Equal("70", noBudLevels.Value);
+
+        Assert.Equal("Battery", Summary(State((BatteryComponent.Combined, 70)), true).Label);
+
+        var none = Summary(null, true);
+        Assert.Equal("Battery", none.Label);
+        Assert.Equal("–", none.Value);
+    }
+
     [Theory]
     [InlineData(true, "Waiting for a reading")]
     [InlineData(false, "Connect the earbuds to read their battery")]
     public void Battery_NoReadingYet_SaysWhatToDo(bool connected, string caption)
     {
-        Assert.Equal(caption, BatterySummary.From(BatteryState.Empty, connected).Caption);
+        Assert.Equal(caption, Summary(BatteryState.Empty, connected).Caption);
     }
 
     [Fact]
     public void Battery_EveryPiece_IsInOrder_WithTheLowestBudAsTheSummary()
     {
-        var summary = BatterySummary.From(State((BatteryComponent.Case, 64), (BatteryComponent.Right, 81), (BatteryComponent.Left, 93)), true);
+        var summary = Summary(State((BatteryComponent.Case, 64), (BatteryComponent.Right, 81), (BatteryComponent.Left, 93)), true);
 
         Assert.Equal(["Left bud", "Right bud", "Case"], summary.Cells.Select(c => c.Label));
         Assert.Equal("Each level is reported by the earbuds", summary.Caption);
@@ -59,12 +78,12 @@ public sealed class DeviceItemPartsTests
     [Fact]
     public void Battery_TheMostUrgentBud_DecidesTheAlert_AndTheCaseOnlyInforms()
     {
-        var low = BatterySummary.From(State((BatteryComponent.Left, 90), (BatteryComponent.Right, 17), (BatteryComponent.Case, 5)), true);
+        var low = Summary(State((BatteryComponent.Left, 90), (BatteryComponent.Right, 17), (BatteryComponent.Case, 5)), true);
         Assert.True(low.IsLow);
         Assert.False(low.IsCritical);
         Assert.Equal("Right bud low · 17%", low.AlertText);
 
-        var critical = BatterySummary.From(State((BatteryComponent.Left, 8), (BatteryComponent.Right, 17)), true);
+        var critical = Summary(State((BatteryComponent.Left, 8), (BatteryComponent.Right, 17)), true);
         Assert.True(critical.IsCritical);
         Assert.False(critical.IsLow);
         Assert.Equal("Left bud critically low · 8%", critical.AlertText);
@@ -74,11 +93,11 @@ public sealed class DeviceItemPartsTests
     public void Battery_Caption_NamesEveryPieceWithoutALevel()
     {
         Assert.Equal("No level from the right bud yet, and the case isn't reported by this device",
-            BatterySummary.From(State((BatteryComponent.Left, 0), (BatteryComponent.Right, null)), true).Caption);
+            Summary(State((BatteryComponent.Left, 0), (BatteryComponent.Right, null)), true).Caption);
         Assert.Equal("The case isn't reported by this device",
-            BatterySummary.From(State((BatteryComponent.Left, 50), (BatteryComponent.Right, 50)), true).Caption);
+            Summary(State((BatteryComponent.Left, 50), (BatteryComponent.Right, 50)), true).Caption);
         Assert.Equal("No level from the left bud and right bud yet",
-            BatterySummary.From(State((BatteryComponent.Left, null), (BatteryComponent.Right, null), (BatteryComponent.Case, 40)), true).Caption);
+            Summary(State((BatteryComponent.Left, null), (BatteryComponent.Right, null), (BatteryComponent.Case, 40)), true).Caption);
     }
 
     [Theory]
@@ -87,7 +106,7 @@ public sealed class DeviceItemPartsTests
     [InlineData(null, false, "Connect the earbuds to read their battery")]
     public void Battery_SingleLevel_Caption(int? percent, bool connected, string caption)
     {
-        Assert.Equal(caption, BatterySummary.From(State((BatteryComponent.Combined, percent)), connected).Caption);
+        Assert.Equal(caption, Summary(State((BatteryComponent.Combined, percent)), connected).Caption);
     }
 
     [Fact]

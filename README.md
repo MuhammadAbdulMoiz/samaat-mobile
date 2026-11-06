@@ -10,7 +10,8 @@
 <p align="center">
   <a href="docs/TRY-IT.md">Try it</a> &nbsp;·&nbsp;
   <a href="#build">Build</a> &nbsp;·&nbsp;
-  <a href="#how-its-built">How it's built</a>
+  <a href="#how-its-built">How it's built</a> &nbsp;·&nbsp;
+  <a href="#licence">Licence</a>
 </p>
 
 <p align="center">
@@ -115,3 +116,7 @@ Then build and run the tests: a change in the shared tokens or APIs shows up her
 ## Status
 
 Built and tested in CI with simulated earbuds; the Android app hasn't been run on a phone yet. Please try it and report what happens, using the [hardware checklist](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/docs/plans/2026-11-04-phone-handoff.md#hardware-check-not-doable-in-ci).
+
+## Licence
+
+Samaat for Android is free software: you can redistribute it and change it under the terms of the [GNU General Public License, version 3 or later](LICENSE), like the [desktop app](https://github.com/MuhammadAbdulMoiz/samaat.io#licence) whose code it builds. It comes with no warranty. Third-party code in the shared projects is listed in the desktop repo's [THIRD_PARTY_NOTICES.md](https://github.com/MuhammadAbdulMoiz/samaat.io/blob/feature/ui-redesign/THIRD_PARTY_NOTICES.md).

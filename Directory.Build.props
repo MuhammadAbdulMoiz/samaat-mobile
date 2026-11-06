@@ -2,6 +2,8 @@
   <!-- Same compiler settings as the desktop repo, from the shared code in the submodule. -->
   <Import Project="external/samaat.io/Directory.Build.props" Condition="Exists('external/samaat.io/Directory.Build.props')" />
   <PropertyGroup>
+    <!-- Free software under the GNU GPL v3 or later (LICENSE), the same licence as the desktop repo. -->
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <!-- The desktop repo (git submodule): Core, the phone link, the design system, drivers, protocols and devices/. -->
     <SamaatShared>$(MSBuildThisFileDirectory)external/samaat.io/</SamaatShared>
   </PropertyGroup>

@@ -43,6 +43,8 @@ public sealed class ErrorHandlingTests
 
         public Task<bool> RequestPermissionsAsync() => Task.FromResult(true);
 
+        public Task<NotificationPermission> RequestNotificationPermissionAsync() => Task.FromResult(NotificationPermission.Granted);
+
         public void OpenBluetoothSettings()
         {
         }

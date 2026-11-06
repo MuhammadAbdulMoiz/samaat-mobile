@@ -24,6 +24,11 @@ public partial class MainView : UserControl
         if (_topLevel is not null)
         {
             _topLevel.BackRequested += OnBackRequested;
+            if (DataContext is MainViewModel viewModel)
+            {
+                viewModel.CopyToClipboard = CopyAsync;
+            }
+
 
             // Android 15+ draws apps edge to edge: the ink background runs under the system bars and the content keeps
             // clear of them, the navigation bar's surface reaching down under the gesture bar.
@@ -36,6 +41,11 @@ public partial class MainView : UserControl
             }
         }
     }
+
+    private Task CopyAsync(string text) =>
+        _topLevel?.Clipboard is { } clipboard
+            ? clipboard.SetTextAsync(text)
+            : Task.FromException(new InvalidOperationException("This phone gave no clipboard to copy to."));
 
     private void OnSafeAreaChanged(object? sender, SafeAreaChangedArgs e) => ApplySafeArea(e.SafeAreaPadding);
 

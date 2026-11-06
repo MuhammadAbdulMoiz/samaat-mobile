@@ -55,7 +55,8 @@ internal static class AndroidHost
                 new AndroidBeaconListener(app),
                 new AndroidMobilePlatform(app, _audio),
                 profiles: DeviceProfileDb.Load(devices),
-                settings: new SettingsStore(Path.Combine(app.FilesDir!.AbsolutePath, "settings.json")));
+                settings: new SettingsStore(Path.Combine(app.FilesDir!.AbsolutePath, "settings.json")),
+                notifier: new AndroidNotifier(app, Resource.Drawable.icon));
             return _runtime;
         }
     }
@@ -111,16 +112,35 @@ internal static class AndroidHost
     public const int PermissionRequestCode = 4711;
     private static TaskCompletionSource<bool>? _permission;
 
-    public static Task<bool> RequestPermissionsAsync(string[] permissions)
+    // One request at a time: the start-up request and the notification check can overlap, and the second would
+    // replace the first's completion source, leaving its caller waiting forever.
+    private static readonly SemaphoreSlim PermissionGate = new(1, 1);
+
+    /// <summary>True when all were granted, false when refused, null when no activity was on screen to ask from.</summary>
+    public static async Task<bool?> RequestPermissionsAsync(string[] permissions)
     {
-        if (Foreground is not { } activity || permissions.Length == 0)
+        if (permissions.Length == 0)
         {
-            return Task.FromResult(false);
+            return false;
         }
 
-        _permission = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        activity.RunOnUiThread(() => activity.RequestPermissions(permissions, PermissionRequestCode));
-        return _permission.Task;
+        await PermissionGate.WaitAsync();
+        try
+        {
+            if (Foreground is not { } activity)
+            {
+                return null;
+            }
+
+            var pending = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _permission = pending;
+            activity.RunOnUiThread(() => activity.RequestPermissions(permissions, PermissionRequestCode));
+            return await pending.Task;
+        }
+        finally
+        {
+            PermissionGate.Release();
+        }
     }
 
     public static void OnPermissionResult(int requestCode, Permission[] results)
@@ -145,10 +165,7 @@ internal sealed class AndroidMobilePlatform(Context context, AndroidPhoneAudio a
             wanted.Add(global::Android.Manifest.Permission.BluetoothConnect);
         }
 
-        if (OperatingSystem.IsAndroidVersionAtLeast(33))
-        {
-            wanted.Add(global::Android.Manifest.Permission.PostNotifications);
-        }
+        // Notifications are asked separately, only when battery alerts use them (RequestNotificationPermissionAsync).
 
         var missing = wanted.Where(p => context.CheckSelfPermission(p) != Permission.Granted).ToArray();
         if (missing.Length > 0)
@@ -160,9 +177,45 @@ internal sealed class AndroidMobilePlatform(Context context, AndroidPhoneAudio a
         return audio.Blocker is null;
     }
 
+    /// <summary>Android 13+ asks before an app may post notifications; older versions allow them.</summary>
+    public async Task<NotificationPermission> RequestNotificationPermissionAsync()
+    {
+        try
+        {
+            if (!OperatingSystem.IsAndroidVersionAtLeast(33)
+                || context.CheckSelfPermission(global::Android.Manifest.Permission.PostNotifications) == Permission.Granted)
+            {
+                return NotificationPermission.Granted;
+            }
+
+            // The system dialog needs an activity on screen.
+            if (AndroidHost.Foreground is null)
+            {
+                return NotificationPermission.Unavailable;
+            }
+
+            // The activity can leave between the check above and the request: that is "ask later", not a refusal.
+            return await AndroidHost.RequestPermissionsAsync([global::Android.Manifest.Permission.PostNotifications]) switch
+            {
+                true => NotificationPermission.Granted,
+                false => NotificationPermission.Denied,
+                null => NotificationPermission.Unavailable,
+            };
+        }
+        catch (Exception ex)
+        {
+            MobileLog.Error("Asking to show notifications", ex);
+            return NotificationPermission.Denied;
+        }
+    }
+
     // "Remove animations" (accessibility) sets the animator duration scale to 0.
     public bool PrefersReducedMotion =>
         global::Android.Provider.Settings.Global.GetFloat(context.ContentResolver, global::Android.Provider.Settings.Global.AnimatorDurationScale, 1f) == 0f;
+
+    // "Font size" in the phone's display settings; Avalonia 11.3 doesn't read it, so FontScaling applies it.
+    public double FontScale =>
+        Math.Clamp(context.Resources?.Configuration?.FontScale ?? 1f, (float)FontScaling.MinScale, (float)FontScaling.MaxScale);
 
     public void OpenBluetoothSettings()
     {

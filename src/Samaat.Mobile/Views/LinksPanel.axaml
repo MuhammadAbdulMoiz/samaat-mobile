@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Samaat.Mobile.ViewModels"
+             xmlns:uic="using:Samaat.UI"
+             x:Class="Samaat.Mobile.Views.LinksPanel"
+             x:DataType="vm:DeviceItemViewModel">
+  <!-- Devices: multipoint and every host the earbuds report, or an honest empty state (the desktop's Connections page) -->
+  <Border Classes="panel">
+    <Panel>
+      <StackPanel Spacing="12">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Devices" Classes="panelTitle" VerticalAlignment="Center" />
+          <Border Grid.Column="1" Classes="chip" IsVisible="{Binding HasMultipoint}" ToolTip.Tip="{Binding ConnectedSummaryTip}">
+            <TextBlock Text="{Binding ConnectedSummary}" Classes="number" />
+          </Border>
+        </Grid>
+
+        <!-- No multipoint protocol: say what we can't see and where to manage it -->
+        <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding !HasMultipoint}">
+          <Border Classes="optionIcon" VerticalAlignment="Top">
+            <PathIcon Data="{StaticResource Icon.Phone}" Width="16" Height="16" />
+          </Border>
+          <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+            <TextBlock Text="{Binding HostsUnavailableTitle}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding HostsUnavailableText}" Classes="meta" TextWrapping="Wrap" />
+          </StackPanel>
+        </Grid>
+
+        <!-- IsEnabled inherits: one binding greys out the switch and every host button while the earbuds aren't connected here -->
+        <StackPanel Spacing="12" IsVisible="{Binding HasMultipoint}" IsEnabled="{Binding CanControlHosts}">
+          <Grid ColumnDefinitions="*,Auto" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}">
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="Multipoint" FontWeight="SemiBold" />
+              <TextBlock Text="{Binding LimitText}" Classes="meta" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding MultipointEnabled}"
+                          IsEnabled="{Binding CanToggleMultipoint}" AutomationProperties.Name="Multipoint"
+                          AutomationProperties.HelpText="{Binding MultipointDisabledReason}"
+                          ToolTip.Tip="{Binding MultipointDisabledReason}" ToolTip.ShowOnDisabled="True" />
+          </Grid>
+
+          <Border Classes="divider" />
+
+          <ItemsControl x:Name="HostList" ItemsSource="{Binding Hosts}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><StackPanel Spacing="4" /></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:LinkHostViewModel">
+                <Border Classes="shareRow" Classes.sharing="{Binding IsActive}">
+                  <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="Auto,*">
+                      <Border Classes="optionIcon" Classes.on="{Binding IsActive}" VerticalAlignment="Center">
+                        <PathIcon Data="{Binding IconKey, Converter={x:Static uic:UiConverters.IconByKey}}" Width="16" Height="16" />
+                      </Border>
+                      <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <Border Classes="chip" Padding="4,0" VerticalAlignment="Center" IsVisible="{Binding IsThisHost}">
+                            <TextBlock Text="This phone" FontSize="{DynamicResource Samaat.Mobile.FontSize.Label}" />
+                          </Border>
+                          <TextBlock Text="{Binding StateText}" Classes="meta" VerticalAlignment="Center" TextWrapping="Wrap" />
+                        </StackPanel>
+                      </StackPanel>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" IsVisible="{Binding CanSwitch}">
+                      <Button Classes="ghost" Command="{Binding SwitchCommand}" AutomationProperties.Name="{Binding SwitchLabel}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <PathIcon Data="{Binding SwitchIconKey, Converter={x:Static uic:UiConverters.IconByKey}}" Width="14" Height="14" />
+                          <TextBlock Text="{Binding SwitchText}" FontSize="{DynamicResource Samaat.Mobile.FontSize.Meta}" />
+                        </StackPanel>
+                      </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" IsVisible="{Binding CanDisconnect}">
+                      <Button Classes="ghost" Command="{Binding DisconnectCommand}" AutomationProperties.Name="{Binding DisconnectLabel}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <PathIcon Data="{StaticResource Icon.Disconnect}" Width="14" Height="14" />
+                          <TextBlock Text="Disconnect" FontSize="{DynamicResource Samaat.Mobile.FontSize.Meta}" />
+                        </StackPanel>
+                      </Button>
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding ShowNoHosts}">
+            <Border Classes="optionIcon" VerticalAlignment="Top">
+              <PathIcon Data="{StaticResource Icon.Bluetooth}" Width="16" Height="16" />
+            </Border>
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+              <TextBlock Text="No other devices yet" FontWeight="SemiBold" />
+              <TextBlock Text="Devices you pair these earbuds with appear here" Classes="meta" TextWrapping="Wrap" />
+            </StackPanel>
+          </Grid>
+        </StackPanel>
+
+        <TextBlock Text="{Binding HostsNote}" Classes="meta" TextWrapping="Wrap" IsVisible="{Binding HasHostsNote}" />
+
+        <!-- The limits we always state, one tap away instead of a card of grey sentences -->
+        <Expander x:Name="HowLinksWork" Classes="disclosure" IsExpanded="False" AutomationProperties.Name="How links work">
+          <Expander.Header>
+            <TextBlock Text="How links work" Classes="meta" VerticalAlignment="Center" />
+          </Expander.Header>
+          <TextBlock Text="{Binding LinksHelpText}" Classes="meta" TextWrapping="Wrap" />
+        </Expander>
+      </StackPanel>
+      <!-- Overlaid on the panel's top edge so it never shifts the content -->
+      <ProgressBar Classes="busy" IsVisible="{Binding IsHostsBusy}" VerticalAlignment="Top" Margin="-16,-16,-16,0" />
+    </Panel>
+  </Border>
+</UserControl>

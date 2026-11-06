@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Samaat.Core.Battery;
+using Samaat.Mobile.Diagnostics;
 
 namespace Samaat.Mobile.ViewModels;
 
@@ -47,10 +49,33 @@ public sealed partial class DeviceItemViewModel
     [ObservableProperty]
     public partial string BatteryReasonText { get; set; } = "";
 
+    /// <summary>"Lowest bud" when the summary comes from the buds' own levels, otherwise "Battery".</summary>
+    [ObservableProperty]
+    public partial string SummaryLabel { get; set; } = "Battery";
+
+    [RelayCommand(CanExecute = nameof(IsConnected))]
+    private async Task RefreshBatteryAsync()
+    {
+        if (_battery is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _battery.RefreshAsync();
+        }
+        catch (Exception ex)
+        {
+            MobileLog.Error("refreshing the battery", ex);
+            ErrorText = "Couldn't refresh the battery";
+        }
+    }
+
     private void RefreshBattery()
     {
         var state = _battery?.Current;
-        var summary = BatterySummary.From(_battery is null ? null : state ?? BatteryState.Empty, IsConnected);
+        var summary = BatterySummary.From(_battery is null ? null : state ?? BatteryState.Empty, IsConnected, _runtime.Alerts.Policy);
         Battery.Clear();
         foreach (var cell in summary.Cells)
         {
@@ -61,6 +86,7 @@ public sealed partial class DeviceItemViewModel
             .Select(c => new PieceFigureViewModel(c, state?.Get(c)))];
         ApplyLook();
 
+        SummaryLabel = summary.Label;
         SummaryText = summary.Text;
         SummaryValue = summary.Value;
         SummaryUnit = summary.Unit;

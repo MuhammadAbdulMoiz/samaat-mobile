@@ -73,12 +73,12 @@ public static class SimulatedMobile
     /// worst-case or empty data set), with an in-memory pairing store.
     /// </summary>
     public static MobileRuntime Create(IBeaconListener? beacons = null, PeerStore? store = null, TimeProvider? time = null,
-        Samaat.Handoff.PhoneLinkClientOptions? clientOptions = null, SimulatorScenario scenario = SimulatorScenario.Demo)
+        Samaat.Handoff.PhoneLinkClientOptions? clientOptions = null, SimulatorScenario scenario = SimulatorScenario.Demo, Samaat.Core.Settings.SettingsStore? settings = null)
     {
         var source = new SimulatorDeviceSource(TimeSpan.FromSeconds(2), time, scenario: scenario);
         // The same devices/ folder as the desktop, copied next to the app: model names and artwork photos.
         var profiles = DeviceProfileDb.Load(Path.Combine(AppContext.BaseDirectory, "devices"));
         return new MobileRuntime([source], new SimulatedPhoneAudio(source.Devices), store ?? new PeerStore(null), "Simulated phone",
-            beacons ?? new InMemoryBeaconBus().CreateListener(), new NoMobilePlatform(), time, clientOptions, profiles);
+            beacons ?? new InMemoryBeaconBus().CreateListener(), new NoMobilePlatform(), time, clientOptions, profiles, settings);
     }
 }
