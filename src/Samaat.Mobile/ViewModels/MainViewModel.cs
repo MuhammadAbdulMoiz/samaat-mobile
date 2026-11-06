@@ -54,16 +54,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     public bool HasDevices => Devices.Count > 0;
 
-    public bool ShowEmpty => IsEarbuds && SelectedDevice is null && !HasDevices;
+    public bool ShowEmpty => IsEarbuds && SelectedDevice is null && !HasDevices && !HasBanner;
 
     public string EmptyText => "No earbuds are paired with this phone. Pair them in Bluetooth settings, then come back.";
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsEarbuds), nameof(IsComputer), nameof(IsSettings), nameof(ShowDeviceList), nameof(ShowDevice), nameof(ShowEmpty), nameof(Title), nameof(CanGoBack), nameof(ShowBrand))]
+    [NotifyPropertyChangedFor(nameof(IsEarbuds), nameof(IsComputer), nameof(IsSettings), nameof(ShowDeviceList), nameof(ShowDevice), nameof(ShowDiagnostics), nameof(ShowEmpty), nameof(Title), nameof(CanGoBack), nameof(ShowBrand))]
     public partial MobileTab Tab { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ShowDeviceList), nameof(ShowDevice), nameof(ShowEmpty), nameof(Title), nameof(CanGoBack), nameof(ShowBrand))]
+    [NotifyPropertyChangedFor(nameof(ShowDeviceList), nameof(ShowDevice), nameof(ShowDiagnostics), nameof(ShowEmpty), nameof(Title), nameof(CanGoBack), nameof(ShowBrand))]
     public partial DeviceItemViewModel? SelectedDevice { get; set; }
 
     public bool IsEarbuds => Tab == MobileTab.Earbuds;
@@ -74,18 +74,20 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     public bool ShowDeviceList => IsEarbuds && SelectedDevice is null && HasDevices;
 
-    public bool ShowDevice => IsEarbuds && SelectedDevice is not null;
+    public bool ShowDevice => IsEarbuds && SelectedDevice is not null && Diagnostics is null;
 
-    public bool CanGoBack => ShowDevice;
+    public bool ShowDiagnostics => IsEarbuds && Diagnostics is not null;
+
+    public bool CanGoBack => ShowDevice || ShowDiagnostics;
 
     /// <summary>The brand mark sits beside "Samaat" on the home screen only, as in the desktop sidebar.</summary>
     public bool ShowBrand => IsEarbuds && SelectedDevice is null;
 
-    public string Title => ShowDevice ? SelectedDevice!.Name : IsComputer ? "Computer" : IsSettings ? "Settings" : "Samaat";
+    public string Title => ShowDiagnostics ? "Diagnostics" : ShowDevice ? SelectedDevice!.Name : IsComputer ? "Computer" : IsSettings ? "Settings" : "Samaat";
 
     /// <summary>Something stops Samaat working (a permission, Bluetooth off), with a button that fixes it.</summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasBanner))]
+    [NotifyPropertyChangedFor(nameof(HasBanner), nameof(ShowEmpty))]
     public partial string? BannerText { get; set; }
 
     [ObservableProperty]
@@ -140,6 +142,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     /// <summary>Back from a device page. Returns false when there is nowhere to go back to (Android then leaves the app).</summary>
     public bool GoBack()
     {
+        if (Diagnostics is not null)
+        {
+            CloseDiagnostics();
+            return true;
+        }
+
         if (SelectedDevice is not null)
         {
             SelectedDevice = null;
@@ -235,7 +243,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         foreach (var device in current.Where(d => Devices.All(vm => vm.Device != d)))
         {
-            Devices.Add(new DeviceItemViewModel(device, _runtime, _post, ShowMessage, () => Tab = MobileTab.Computer));
+            Devices.Add(new DeviceItemViewModel(device, _runtime, _post, ShowMessage, () => Tab = MobileTab.Computer, () => OpenDiagnostics(device)));
         }
 
         OnPropertyChanged(nameof(HasDevices));
@@ -246,6 +254,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public void Dispose()
     {
         _messageTimer?.Dispose();
+        CloseDiagnostics();
         Computer.Dispose();
         foreach (var device in Devices)
         {

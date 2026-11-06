@@ -37,6 +37,9 @@ public interface IMobilePlatform
     /// </summary>
     bool PrefersReducedMotion => false;
 
+    /// <summary>Android's "Font size" setting as a multiplier (1 = default). Avalonia ignores it, so <see cref="FontScaling"/> applies it.</summary>
+    double FontScale => 1.0;
+
     /// <summary>
     /// Asks to show notifications (Android 13+ needs the user's yes). <see cref="NotificationPermission.Unavailable"/>
     /// means there is no screen to ask from right now; ask again when the app is next on screen.
@@ -65,6 +68,9 @@ public sealed class NoMobilePlatform : IMobilePlatform
 
     /// <summary>Tests and the preview set it to stand in for the phone's "Remove animations" setting.</summary>
     public bool PrefersReducedMotion { get; set; }
+
+    /// <summary>Tests and the preview set it to stand in for the phone's font size setting.</summary>
+    public double FontScale { get; set; } = 1.0;
 
     public Task<bool> RequestPermissionsAsync()
     {

@@ -88,6 +88,8 @@
 
           <views:DeviceView DataContext="{Binding SelectedDevice}" IsVisible="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).ShowDevice}" />
 
+          <views:DiagnosticsView DataContext="{Binding Diagnostics}" IsVisible="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).ShowDiagnostics}" />
+
           <views:ComputerView DataContext="{Binding Computer}" IsVisible="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).IsComputer}" />
 
           <views:SettingsView DataContext="{Binding Settings}" IsVisible="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).IsSettings}" />

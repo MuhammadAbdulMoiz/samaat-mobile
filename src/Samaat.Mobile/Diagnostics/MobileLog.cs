@@ -1,11 +1,12 @@
 using System.Diagnostics;
+using Samaat.Core.Diagnostics;
 
 namespace Samaat.Mobile.Diagnostics;
 
 /// <summary>
 /// Where the phone app writes errors it handles but mustn't hide: the recent entries in memory, the trace output, and
-/// whatever the platform head adds (<see cref="Written"/>; Android forwards to logcat). Small on purpose: the desktop's
-/// own logging is still being designed, and the phone should adopt that when it lands in the shared code.
+/// whatever the platform head adds (<see cref="Written"/>; Android forwards to logcat). Entries arrive through the
+/// shared <see cref="SamaatLog"/> (<see cref="MobileLogSink"/>), so the desktop's shared code logs here too.
 /// </summary>
 public static class MobileLog
 {
@@ -14,6 +15,8 @@ public static class MobileLog
 
     private static readonly Lock Gate = new();
     private static readonly Queue<string> Entries = new();
+
+    static MobileLog() => MobileLogSink.Install();
 
     /// <summary>Raised for every entry, on the thread that wrote it.</summary>
     public static event Action<string>? Written;
@@ -27,10 +30,12 @@ public static class MobileLog
         }
     }
 
-    /// <summary>Records an error with what Samaat was doing when it happened.</summary>
-    public static void Error(string doing, Exception exception)
+    /// <summary>Records an error with what Samaat was doing when it happened (through the shared <see cref="SamaatLog"/>).</summary>
+    public static void Error(string doing, Exception exception) => SamaatLog.Error("Mobile", doing, exception);
+
+    /// <summary>Keeps one formatted line: memory, trace and <see cref="Written"/>. It never logs, so a sink can call it.</summary>
+    public static void WriteLine(string line)
     {
-        var line = $"{DateTimeOffset.UtcNow:O} {doing}: {exception.GetType().Name}: {exception.Message}";
         lock (Gate)
         {
             Entries.Enqueue(line);

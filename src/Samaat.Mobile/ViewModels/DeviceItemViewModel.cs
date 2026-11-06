@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Samaat.Core.Battery;
 using Samaat.Core.Commands;
+using Samaat.Core.Connections;
 using Samaat.Core.Devices;
 using Samaat.Core.Equalizer;
 using Samaat.Core.NoiseControl;
@@ -21,6 +22,7 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
     private readonly Action<Action> _post;
     private readonly Action<string> _onMessage;
     private readonly Action _openComputer;
+    private readonly Action? _openDiagnostics;
     private readonly IBatteryFeature? _battery;
     private readonly INoiseControlFeature? _noise;
     private readonly IEqualizerFeature? _eq;
@@ -29,13 +31,15 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
     private ResolvedLook? _look;
     private IReadOnlyList<Bitmap> _partBitmaps = [];
 
-    public DeviceItemViewModel(IEarbudDevice device, MobileRuntime runtime, Action<Action> post, Action<string> onMessage, Action openComputer)
+    public DeviceItemViewModel(IEarbudDevice device, MobileRuntime runtime, Action<Action> post, Action<string> onMessage, Action openComputer, Action? openDiagnostics = null)
     {
         Device = device;
         _runtime = runtime;
         _post = post;
         _onMessage = onMessage;
         _openComputer = openComputer;
+        _openDiagnostics = openDiagnostics;
+        _multipoint = device.GetFeature<IMultipointFeature>();
         Address = device.Identity.Details?.Address is { } a ? MessageCodec.NormalizeAddress(a) : null;
         _battery = device.GetFeature<IBatteryFeature>();
         _noise = device.GetFeature<INoiseControlFeature>();
@@ -47,6 +51,11 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
         _runtime.Computer.Changed += OnChanged;
         _runtime.Computer.Progress += OnProgress;
         _runtime.Alerts.Changed += OnAlertPolicyChanged;
+        if (_multipoint is not null)
+        {
+            _multipoint.Changed += OnMultipointChanged;
+        }
+
         if (_battery is not null)
         {
             _battery.Changed += OnBatteryChanged;
@@ -79,7 +88,7 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
     // Connection on this phone
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ShowConnect), nameof(ShowDisconnect), nameof(AccessibleText), nameof(CanControlNoise), nameof(CanControlEq))]
+    [NotifyPropertyChangedFor(nameof(ShowConnect), nameof(ShowDisconnect), nameof(AccessibleText), nameof(CanControlNoise), nameof(CanControlEq), nameof(CanControlHosts))]
     [NotifyCanExecuteChangedFor(nameof(RefreshBatteryCommand))]
     public partial bool IsConnected { get; set; }
 
@@ -149,6 +158,7 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
         };
 
         ApplyComputerState();
+        ApplyHosts();
     }
 
 
@@ -164,6 +174,11 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
         _runtime.Computer.Changed -= OnChanged;
         _runtime.Computer.Progress -= OnProgress;
         _runtime.Alerts.Changed -= OnAlertPolicyChanged;
+        if (_multipoint is not null)
+        {
+            _multipoint.Changed -= OnMultipointChanged;
+        }
+
         if (_battery is not null)
         {
             _battery.Changed -= OnBatteryChanged;

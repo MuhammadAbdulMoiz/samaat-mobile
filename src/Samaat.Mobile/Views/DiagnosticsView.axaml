@@ -1,0 +1,151 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:diag="using:Samaat.Mobile.Diagnostics"
+             x:Class="Samaat.Mobile.Views.DiagnosticsView"
+             x:DataType="diag:DeviceInfoViewModel">
+  <!-- The desktop's Diagnostics page at phone width: recognition and a feature meter up top, what works first, the rest
+       grouped, raw detail and the event log last (closed until asked for). -->
+  <StackPanel Spacing="16">
+
+    <Border Classes="panel">
+      <StackPanel Spacing="12">
+        <Grid ColumnDefinitions="Auto,*">
+          <Border Classes="optionIcon" Classes.on="{Binding IsRecognised}" VerticalAlignment="Center">
+            <PathIcon Data="{StaticResource Icon.ShieldCheck}" Width="16" Height="16" />
+          </Border>
+          <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+            <TextBlock Text="{Binding RecognitionTitle}" Classes="panelTitle" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding RecognitionMeta}" Classes="meta" TextWrapping="Wrap" />
+          </StackPanel>
+        </Grid>
+        <StackPanel Spacing="8" AutomationProperties.Name="{Binding SummaryText}">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Text="Features available" Classes="meta" />
+            <TextBlock Grid.Column="1" Text="{Binding FeatureCountText}" Classes="number" FontSize="{DynamicResource Samaat.Mobile.FontSize.Meta}" />
+          </Grid>
+          <ProgressBar Classes="level" Minimum="0" Maximum="100" Value="{Binding AvailablePercent}" />
+          <TextBlock Text="{Binding SupportText}" Classes="meta" />
+        </StackPanel>
+        <Button Classes="subtle" HorizontalAlignment="Stretch" Command="{Binding CopyReportCommand}"
+                AutomationProperties.Name="Copy diagnostics report" ToolTip.Tip="Copy a report to attach to a hardware bug report">
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <PathIcon Data="{StaticResource Icon.Copy}" Width="14" Height="14" Foreground="{DynamicResource Samaat.Text}" />
+            <TextBlock Text="Copy report" />
+          </StackPanel>
+        </Button>
+        <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding HasCopyStatus}">
+          <PathIcon Data="{StaticResource Icon.Check}" Width="14" Height="14" Foreground="{DynamicResource Samaat.Accent}" VerticalAlignment="Top" Margin="0,2,0,0" />
+          <TextBlock Text="{Binding CopyStatus}" Classes="meta" TextWrapping="Wrap" />
+        </StackPanel>
+        <Border Classes="alert critical" IsVisible="{Binding HasCopyError}">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource Icon.Warning}" Width="14" Height="14" VerticalAlignment="Top" Margin="0,2,0,0" />
+            <TextBlock Text="{Binding CopyError}" TextWrapping="Wrap" FontWeight="SemiBold" MaxWidth="300" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </Border>
+
+    <!-- One capability list: what works first, the rest grouped by module with their reasons -->
+    <Border Classes="panel">
+      <StackPanel Spacing="12">
+        <TextBlock Text="Features" Classes="panelTitle" />
+        <ItemsControl ItemsSource="{Binding AvailableRows}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="diag:CapabilityRow">
+              <Border Classes="featureCell" AutomationProperties.Name="{Binding AccessibleName}">
+                <Grid ColumnDefinitions="Auto,*">
+                  <PathIcon Data="{StaticResource Icon.CheckCircle}" Width="16" Height="16" Foreground="{DynamicResource Samaat.Accent}" VerticalAlignment="Top" Margin="0,2,0,0" />
+                  <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding Meta}" Classes="meta" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <ItemsControl ItemsSource="{Binding UnavailableGroups}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="diag:UnavailableGroup">
+              <Border Classes="row">
+                <Expander Classes="disclosure" AutomationProperties.Name="{Binding Title}">
+                  <Expander.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                      <PathIcon Data="{StaticResource Icon.Dash}" Width="16" Height="16" Foreground="{DynamicResource Samaat.Faint}" />
+                      <StackPanel>
+                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Reason}" Classes="meta" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </StackPanel>
+                  </Expander.Header>
+                  <ItemsControl ItemsSource="{Binding Items}" Margin="28,0,0,0">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="diag:CapabilityRow">
+                        <StackPanel Margin="0,4" AutomationProperties.Name="{Binding AccessibleName}">
+                          <TextBlock Text="{Binding Name}" TextWrapping="Wrap" />
+                          <TextBlock Text="{Binding Meta}" Classes="meta" TextWrapping="Wrap" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </Expander>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+
+    <!-- Technical details, closed until asked for -->
+    <Border Classes="panel">
+      <Expander x:Name="TechnicalDetails" Classes="disclosure" IsExpanded="False" AutomationProperties.Name="Technical details">
+        <Expander.Header>
+          <TextBlock Text="Technical details" Classes="panelTitle" VerticalAlignment="Center" />
+        </Expander.Header>
+        <ItemsControl ItemsSource="{Binding TechnicalRows}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="diag:InfoRow">
+              <Border Classes="row">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{Binding Label}" Classes="meta" />
+                  <SelectableTextBlock Text="{Binding Value}" Classes="number" FontSize="{DynamicResource Samaat.Mobile.FontSize.Meta}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Expander>
+    </Border>
+
+    <!-- Event log, closed until asked for -->
+    <Border Classes="panel">
+      <Expander x:Name="EventLog" Classes="disclosure" IsExpanded="False" AutomationProperties.Name="Event log">
+        <Expander.Header>
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <TextBlock Text="Event log" Classes="panelTitle" VerticalAlignment="Center" />
+            <Border Classes="chip" Padding="8,0" VerticalAlignment="Center">
+              <TextBlock Text="{Binding Events.Count}" Classes="number" FontSize="{DynamicResource Samaat.Mobile.FontSize.Label}" />
+            </Border>
+          </StackPanel>
+        </Expander.Header>
+        <StackPanel>
+          <TextBlock Text="Waiting for the device to report something…" Classes="meta" IsVisible="{Binding HasNoEvents}" />
+          <ItemsControl ItemsSource="{Binding Events}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="diag:EventRow">
+                <StackPanel Margin="0,4">
+                  <TextBlock Text="{Binding Time}" Classes="number muted" FontSize="{DynamicResource Samaat.Mobile.FontSize.Meta}" />
+                  <TextBlock Text="{Binding Text}" FontSize="{DynamicResource Samaat.Mobile.FontSize.Meta}" TextWrapping="Wrap" />
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Expander>
+    </Border>
+  </StackPanel>
+</UserControl>

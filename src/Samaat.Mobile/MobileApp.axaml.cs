@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Samaat.Mobile.Diagnostics;
 using Samaat.Mobile.Runtime;
 using Samaat.Mobile.Simulation;
 using Samaat.Mobile.ViewModels;
@@ -36,9 +37,11 @@ public partial class MobileApp : Application
 
     public static MainView CreateMainView()
     {
+        MobileLogSink.Install();
         var runtime = RuntimeFactory();
         // Before any view exists, so the first frame already has the chosen theme.
         ThemePolicy.Apply(ThemePolicy.Stored(runtime.Settings));
+        FontScaling.Apply(Application.Current!, runtime.Platform.FontScale);
         AccentPalette.Apply(runtime.Settings?.Load().Accent ?? new Samaat.Core.Settings.AppSettings().Accent);
         var viewModel = new MainViewModel(runtime);
         Shell = viewModel;

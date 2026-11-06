@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Samaat.Mobile.ViewModels"
+             xmlns:views="using:Samaat.Mobile.Views"
              xmlns:ui="using:Samaat.UI.Controls"
              xmlns:uic="using:Samaat.UI"
              x:Class="Samaat.Mobile.Views.DeviceView"
@@ -93,7 +94,7 @@
           </Panel>
         </Panel>
       </Border>
-      <Button Classes="ghost" Content="Change look" HorizontalAlignment="Center" Margin="0,-8,0,0" FontSize="{StaticResource Samaat.Mobile.FontSize.Meta}"
+      <Button Classes="ghost" Content="Change look" HorizontalAlignment="Center" Margin="0,-8,0,0" FontSize="{DynamicResource Samaat.Mobile.FontSize.Meta}"
               Foreground="{DynamicResource Samaat.Muted}" AutomationProperties.Name="Change look">
         <Button.Flyout>
           <MenuFlyout Placement="Bottom" ItemsSource="{Binding LookOptions}">
@@ -131,7 +132,7 @@
       <Border Classes="alert" Classes.critical="{Binding AlertIsCritical}" IsVisible="{Binding HasAlert}" HorizontalAlignment="Left">
         <StackPanel Orientation="Horizontal" Spacing="8">
           <PathIcon Data="{StaticResource Icon.Warning}" Width="14" Height="14" />
-          <TextBlock Text="{Binding AlertText}" FontSize="{StaticResource Samaat.Mobile.FontSize.Meta}" FontWeight="SemiBold" />
+          <TextBlock Text="{Binding AlertText}" FontSize="{DynamicResource Samaat.Mobile.FontSize.Meta}" FontWeight="SemiBold" />
         </StackPanel>
       </Border>
       <Border Classes="alert critical" IsVisible="{Binding HasError}">
@@ -174,6 +175,8 @@
         </Border>
       </StackPanel>
     </Border>
+
+    <views:LinksPanel />
 
     <!-- Battery: the desktop's figures (label, value and unit, level bar, meta) -->
     <Border Classes="panel" IsVisible="{Binding HasBattery}">
@@ -335,5 +338,7 @@
         </ItemsControl>
       </StackPanel>
     </Border>
+
+    <Button Classes="subtle" HorizontalAlignment="Stretch" Content="Diagnostics" Command="{Binding OpenDiagnosticsCommand}" />
   </StackPanel>
 </UserControl>

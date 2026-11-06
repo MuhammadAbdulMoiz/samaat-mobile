@@ -158,7 +158,7 @@
       <Grid ColumnDefinitions="Auto,*">
         <Image Source="{x:Static uilogo:Logo.Image}" Width="40" Height="40" VerticalAlignment="Top" AutomationProperties.Name="Samaat logo" />
         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
-          <TextBlock Text="Samaat" Classes="display" FontSize="{StaticResource Samaat.FontSize.Heading}" />
+          <TextBlock Text="Samaat" Classes="display" FontSize="{DynamicResource Samaat.FontSize.Heading}" />
           <TextBlock Text="{Binding VersionText}" Classes="meta" />
           <TextBlock Text="A companion for Bluetooth earbuds from any brand" Classes="meta" TextWrapping="Wrap" />
           <TextBlock Text="{Binding LicenceNotice}" Classes="meta" TextWrapping="Wrap" Margin="0,8,0,0" />
