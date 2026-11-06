@@ -32,6 +32,8 @@ public class MainActivity : AvaloniaMainActivity<MobileApp>
         AndroidHost.Audio?.Refresh();
         // "Remove animations" may have changed while Samaat was in the background.
         MobileApp.Shell?.RefreshMotion();
+        // Notifications are on but Android had no screen to ask from earlier: ask now that there is one.
+        MobileApp.Shell?.CheckNotificationPermission();
     }
 
     protected override void OnPause()

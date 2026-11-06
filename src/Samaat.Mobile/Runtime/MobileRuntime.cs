@@ -1,4 +1,5 @@
 using Samaat.Core.Devices;
+using Samaat.Core.Platform;
 using Samaat.Core.Profiles;
 using Samaat.Core.Settings;
 using Samaat.Handoff;
@@ -9,6 +10,14 @@ using Samaat.Handoff.Storage;
 namespace Samaat.Mobile.Runtime;
 
 /// <summary>What only the phone's OS can do. Android implements it; the simulator and tests use <see cref="NoMobilePlatform"/>.</summary>
+/// <summary>The answer to "may Samaat show notifications?".</summary>
+public enum NotificationPermission
+{
+    Granted,
+    Denied,
+    Unavailable,
+}
+
 public interface IMobilePlatform
 {
     /// <summary>"android", "simulator", …: shown on the computer.</summary>
@@ -27,6 +36,12 @@ public interface IMobilePlatform
     /// animator duration scale to 0). Read again whenever the app comes back to the foreground.
     /// </summary>
     bool PrefersReducedMotion => false;
+
+    /// <summary>
+    /// Asks to show notifications (Android 13+ needs the user's yes). <see cref="NotificationPermission.Unavailable"/>
+    /// means there is no screen to ask from right now; ask again when the app is next on screen.
+    /// </summary>
+    Task<NotificationPermission> RequestNotificationPermissionAsync();
 }
 
 public sealed class NoMobilePlatform : IMobilePlatform
@@ -36,6 +51,17 @@ public sealed class NoMobilePlatform : IMobilePlatform
     public int PermissionRequests { get; private set; }
 
     public int SettingsOpened { get; private set; }
+
+    public int NotificationRequests { get; private set; }
+
+    /// <summary>What the next notification request answers; tests set it.</summary>
+    public NotificationPermission NotificationResult { get; set; } = NotificationPermission.Granted;
+
+    public Task<NotificationPermission> RequestNotificationPermissionAsync()
+    {
+        NotificationRequests++;
+        return Task.FromResult(NotificationResult);
+    }
 
     /// <summary>Tests and the preview set it to stand in for the phone's "Remove animations" setting.</summary>
     public bool PrefersReducedMotion { get; set; }
@@ -60,6 +86,7 @@ public sealed class NoMobilePlatform : IMobilePlatform
 public sealed class MobileRuntime : IAsyncDisposable
 {
     private int _started;
+    private readonly BatteryAlertWatcher _watcher;
 
     public MobileRuntime(
         IReadOnlyList<IDeviceSource> sources,
@@ -71,13 +98,16 @@ public sealed class MobileRuntime : IAsyncDisposable
         TimeProvider? time = null,
         PhoneLinkClientOptions? clientOptions = null,
         DeviceProfileDb? profiles = null,
-        SettingsStore? settings = null)
+        SettingsStore? settings = null,
+        INotifier? notifier = null)
     {
         Profiles = profiles ?? DeviceProfileDb.Empty;
         Settings = settings;
         Looks = new ArtworkChoices(settings);
+        Alerts = new BatteryAlertSettings(settings);
         Time = time ?? TimeProvider.System;
         Registry = new DeviceRegistry(sources);
+        _watcher = new BatteryAlertWatcher(Registry, Alerts, notifier ?? new NoNotifier());
         Audio = audio;
         Platform = platform;
         PhoneName = phoneName;
@@ -94,6 +124,9 @@ public sealed class MobileRuntime : IAsyncDisposable
 
     /// <summary>The artwork look picked per device ("Change look"), as on the desktop.</summary>
     public ArtworkChoices Looks { get; }
+
+    /// <summary>The battery-alert choices: thresholds, the case, system notifications.</summary>
+    public BatteryAlertSettings Alerts { get; }
 
     public IPhoneAudioLink Audio { get; }
 
@@ -116,10 +149,12 @@ public sealed class MobileRuntime : IAsyncDisposable
 
         Computer.Start();
         await Registry.RefreshAsync();
+        _watcher.Start();
     }
 
     public async ValueTask DisposeAsync()
     {
+        _watcher.Dispose();
         await Computer.DisposeAsync();
         await Registry.DisposeAsync();
     }

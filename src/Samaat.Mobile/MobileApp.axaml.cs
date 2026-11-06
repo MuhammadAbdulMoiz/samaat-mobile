@@ -39,6 +39,7 @@ public partial class MobileApp : Application
         var runtime = RuntimeFactory();
         // Before any view exists, so the first frame already has the chosen theme.
         ThemePolicy.Apply(ThemePolicy.Stored(runtime.Settings));
+        AccentPalette.Apply(runtime.Settings?.Load().Accent ?? new Samaat.Core.Settings.AppSettings().Accent);
         var viewModel = new MainViewModel(runtime);
         Shell = viewModel;
         viewModel.Start();

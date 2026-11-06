@@ -54,6 +54,103 @@
             </Grid>
           </Button>
         </StackPanel>
+        <Grid ColumnDefinitions="Auto,*" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}" Margin="0,8,0,0">
+          <Border Classes="optionIcon" VerticalAlignment="Center">
+            <PathIcon Data="{StaticResource Icon.Palette}" Width="16" Height="16" />
+          </Border>
+          <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+            <TextBlock Text="Accent" />
+            <TextBlock Text="Used for charge, selection and focus" Classes="meta" TextWrapping="Wrap" />
+          </StackPanel>
+        </Grid>
+        <StackPanel Orientation="Horizontal" Spacing="8" Margin="44,0,0,0">
+          <Button Classes="swatch" Classes.selected="{Binding IsLimeAccent}" AutomationProperties.Name="Lime"
+                  Command="{Binding SetAccentCommand}" CommandParameter="{x:Static set:AccentChoice.Lime}">
+            <Panel>
+              <Ellipse Fill="{StaticResource Samaat.Swatch.Lime}" Stroke="{DynamicResource Samaat.Border}" StrokeThickness="1" />
+              <PathIcon Classes="swatchCheck" Data="{StaticResource Icon.Check}" IsVisible="{Binding IsLimeAccent}" />
+            </Panel>
+          </Button>
+          <Button Classes="swatch" Classes.selected="{Binding IsEmeraldAccent}" AutomationProperties.Name="Emerald"
+                  Command="{Binding SetAccentCommand}" CommandParameter="{x:Static set:AccentChoice.Emerald}">
+            <Panel>
+              <Ellipse Fill="{StaticResource Samaat.Swatch.Emerald}" Stroke="{DynamicResource Samaat.Border}" StrokeThickness="1" />
+              <PathIcon Classes="swatchCheck" Data="{StaticResource Icon.Check}" IsVisible="{Binding IsEmeraldAccent}" />
+            </Panel>
+          </Button>
+          <Button Classes="swatch" Classes.selected="{Binding IsIceAccent}" AutomationProperties.Name="Ice"
+                  Command="{Binding SetAccentCommand}" CommandParameter="{x:Static set:AccentChoice.Ice}">
+            <Panel>
+              <Ellipse Fill="{StaticResource Samaat.Swatch.Ice}" Stroke="{DynamicResource Samaat.Border}" StrokeThickness="1" />
+              <PathIcon Classes="swatchCheck" Data="{StaticResource Icon.Check}" IsVisible="{Binding IsIceAccent}" />
+            </Panel>
+          </Button>
+          <Button Classes="swatch" Classes.selected="{Binding IsMonoAccent}" AutomationProperties.Name="Mono"
+                  Command="{Binding SetAccentCommand}" CommandParameter="{x:Static set:AccentChoice.Mono}">
+            <Panel>
+              <Ellipse Fill="{StaticResource Samaat.Swatch.Mono}" Stroke="{DynamicResource Samaat.Border}" StrokeThickness="1" />
+              <PathIcon Classes="swatchCheck" Data="{StaticResource Icon.Check}" IsVisible="{Binding IsMonoAccent}" />
+            </Panel>
+          </Button>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <Border Classes="panel">
+      <StackPanel Spacing="8">
+        <StackPanel Spacing="2" Margin="0,0,0,4">
+          <TextBlock Text="Battery alerts" Classes="panelTitle" />
+          <TextBlock Text="When Samaat warns you about a low battery" Classes="meta" />
+        </StackPanel>
+        <Grid ColumnDefinitions="Auto,*,Auto" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}">
+          <Border Classes="optionIcon" VerticalAlignment="Center">
+            <PathIcon Data="{StaticResource Icon.BatteryWarning}" Width="16" Height="16" />
+          </Border>
+          <TextBlock Grid.Column="1" Text="Low battery warning" Margin="12,0" VerticalAlignment="Center" TextWrapping="Wrap" />
+          <ComboBox Grid.Column="2" ItemsSource="{Binding LowChoices}" SelectedItem="{Binding SelectedLow}" VerticalAlignment="Center"
+                    AutomationProperties.Name="Low battery warning">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="x:Int32">
+                <TextBlock Text="{Binding StringFormat={}{0}%}" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </Grid>
+        <Grid ColumnDefinitions="Auto,*,Auto" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}">
+          <Border Classes="optionIcon" VerticalAlignment="Center">
+            <PathIcon Data="{StaticResource Icon.Warning}" Width="16" Height="16" />
+          </Border>
+          <TextBlock Grid.Column="1" Text="Critical battery warning" Margin="12,0" VerticalAlignment="Center" TextWrapping="Wrap" />
+          <ComboBox Grid.Column="2" ItemsSource="{Binding CriticalChoices}" SelectedItem="{Binding SelectedCritical}" VerticalAlignment="Center"
+                    AutomationProperties.Name="Critical battery warning">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="x:Int32">
+                <TextBlock Text="{Binding StringFormat={}{0}%}" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </Grid>
+        <Grid ColumnDefinitions="Auto,*,Auto" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}">
+          <Border Classes="optionIcon" VerticalAlignment="Center">
+            <PathIcon Data="{StaticResource Icon.BatteryCharge}" Width="16" Height="16" />
+          </Border>
+          <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+            <TextBlock Text="Include the charging case" />
+            <TextBlock Text="A low case is less urgent than low buds, so it is off by default" Classes="meta" TextWrapping="Wrap" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="2" IsChecked="{Binding IncludeCase}" AutomationProperties.Name="Include the charging case" />
+        </Grid>
+        <Grid ColumnDefinitions="Auto,*,Auto" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}">
+          <Border Classes="optionIcon" VerticalAlignment="Center">
+            <PathIcon Data="{StaticResource Icon.Bell}" Width="16" Height="16" />
+          </Border>
+          <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+            <TextBlock Text="System notifications" />
+            <TextBlock Text="Also show battery alerts as system notifications" Classes="meta" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding NotificationsDeniedText}" Classes="meta" TextWrapping="Wrap" IsVisible="{Binding NotificationsDenied}" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="2" IsChecked="{Binding SystemNotifications}" AutomationProperties.Name="System notifications" />
+        </Grid>
       </StackPanel>
     </Border>
 

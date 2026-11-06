@@ -4,14 +4,11 @@ namespace Samaat.Mobile.ViewModels;
 
 /// <summary>
 /// One battery figure with the desktop's anatomy: label, value and unit apart, a level bar, and a meta line.
-/// Low and critical use the desktop's default thresholds (20 % and 10 %) and always say so in words.
+/// Low and critical follow the alert policy (the settings' thresholds) and always say so in words.
 /// </summary>
 public sealed class BatteryCellViewModel
 {
-    public const int LowThreshold = 20;
-    public const int CriticalThreshold = 10;
-
-    public BatteryCellViewModel(BatteryReading reading)
+    public BatteryCellViewModel(BatteryReading reading, BatteryAlertPolicy policy)
     {
         Component = reading.Component;
         Label = reading.Component switch
@@ -26,8 +23,8 @@ public sealed class BatteryCellViewModel
         Value = reading.Percent?.ToString() ?? "–";
         Unit = HasLevel ? "%" : "";
         IsCharging = reading.IsCharging;
-        IsCritical = HasLevel && Percent <= CriticalThreshold && !IsCharging;
-        IsLow = HasLevel && Percent <= LowThreshold && !IsCharging && !IsCritical;
+        IsCritical = HasLevel && Percent <= policy.CriticalThreshold && !IsCharging;
+        IsLow = HasLevel && Percent <= policy.LowThreshold && !IsCharging && !IsCritical;
         var state = IsCritical ? "Critical" : IsLow ? "Low" : IsCharging ? "Charging" : reading.Charging == ChargingState.Full ? "Full" : "";
         var where = reading.Status switch
         {

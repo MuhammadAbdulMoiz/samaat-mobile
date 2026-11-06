@@ -28,7 +28,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _runtime = runtime;
         _post = post ?? (a => Dispatcher.UIThread.Post(a));
         Computer = new ComputerViewModel(runtime, _post, ShowMessage);
-        Settings = new SettingsViewModel(runtime.Settings, ThemePolicy.Apply);
+        Settings = new SettingsViewModel(runtime.Settings, ThemePolicy.Apply, AccentPalette.Apply, runtime.Alerts, runtime.Platform.RequestNotificationPermissionAsync, _post);
         _runtime.Registry.DevicesChanged += (_, _) => _post(SyncDevices);
         _runtime.Audio.Changed += (_, _) => _post(RefreshBanner);
         SyncDevices();
@@ -42,6 +42,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     /// <summary>Reads the phone's animation setting again (the Android activity calls this on resume).</summary>
     public void RefreshMotion() => ReduceMotion = _runtime.Platform.PrefersReducedMotion;
+
+    /// <summary>Asks for notification permission again if it is on and the phone had no screen to ask from (the activity calls this on resume).</summary>
+    public void CheckNotificationPermission() => Settings.CheckNotificationPermission();
 
     public ComputerViewModel Computer { get; }
 

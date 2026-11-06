@@ -55,7 +55,8 @@ internal static class AndroidHost
                 new AndroidBeaconListener(app),
                 new AndroidMobilePlatform(app, _audio),
                 profiles: DeviceProfileDb.Load(devices),
-                settings: new SettingsStore(Path.Combine(app.FilesDir!.AbsolutePath, "settings.json")));
+                settings: new SettingsStore(Path.Combine(app.FilesDir!.AbsolutePath, "settings.json")),
+                notifier: new AndroidNotifier(app, Resource.Drawable.icon));
             return _runtime;
         }
     }
@@ -111,16 +112,34 @@ internal static class AndroidHost
     public const int PermissionRequestCode = 4711;
     private static TaskCompletionSource<bool>? _permission;
 
-    public static Task<bool> RequestPermissionsAsync(string[] permissions)
+    // One request at a time: the start-up request and the notification check can overlap, and the second would
+    // replace the first's completion source, leaving its caller waiting forever.
+    private static readonly SemaphoreSlim PermissionGate = new(1, 1);
+
+    public static async Task<bool> RequestPermissionsAsync(string[] permissions)
     {
-        if (Foreground is not { } activity || permissions.Length == 0)
+        if (permissions.Length == 0)
         {
-            return Task.FromResult(false);
+            return false;
         }
 
-        _permission = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        activity.RunOnUiThread(() => activity.RequestPermissions(permissions, PermissionRequestCode));
-        return _permission.Task;
+        await PermissionGate.WaitAsync();
+        try
+        {
+            if (Foreground is not { } activity)
+            {
+                return false;
+            }
+
+            var pending = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _permission = pending;
+            activity.RunOnUiThread(() => activity.RequestPermissions(permissions, PermissionRequestCode));
+            return await pending.Task;
+        }
+        finally
+        {
+            PermissionGate.Release();
+        }
     }
 
     public static void OnPermissionResult(int requestCode, Permission[] results)
@@ -158,6 +177,33 @@ internal sealed class AndroidMobilePlatform(Context context, AndroidPhoneAudio a
 
         audio.Refresh();
         return audio.Blocker is null;
+    }
+
+    /// <summary>Android 13+ asks before an app may post notifications; older versions allow them.</summary>
+    public async Task<NotificationPermission> RequestNotificationPermissionAsync()
+    {
+        try
+        {
+            if (!OperatingSystem.IsAndroidVersionAtLeast(33)
+                || context.CheckSelfPermission(global::Android.Manifest.Permission.PostNotifications) == Permission.Granted)
+            {
+                return NotificationPermission.Granted;
+            }
+
+            // The system dialog needs an activity on screen.
+            if (AndroidHost.Foreground is null)
+            {
+                return NotificationPermission.Unavailable;
+            }
+
+            var granted = await AndroidHost.RequestPermissionsAsync([global::Android.Manifest.Permission.PostNotifications]);
+            return granted ? NotificationPermission.Granted : NotificationPermission.Denied;
+        }
+        catch (Exception ex)
+        {
+            MobileLog.Error("Asking to show notifications", ex);
+            return NotificationPermission.Denied;
+        }
     }
 
     // "Remove animations" (accessibility) sets the animator duration scale to 0.

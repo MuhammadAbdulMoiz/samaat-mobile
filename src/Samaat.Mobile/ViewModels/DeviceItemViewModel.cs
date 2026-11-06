@@ -46,6 +46,7 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
         device.ConnectionChanged += OnChanged;
         _runtime.Computer.Changed += OnChanged;
         _runtime.Computer.Progress += OnProgress;
+        _runtime.Alerts.Changed += OnAlertPolicyChanged;
         if (_battery is not null)
         {
             _battery.Changed += OnBatteryChanged;
@@ -131,6 +132,8 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
 
     private void OnBatteryChanged(object? sender, BatteryState e) => _post(RefreshBattery);
 
+    private void OnAlertPolicyChanged(object? sender, EventArgs e) => _post(RefreshBattery);
+
     private void OnNoiseChanged(object? sender, NoiseControlState e) => _post(RefreshNoise);
 
     private void OnEqChanged(object? sender, int? e) => _post(RefreshEq);
@@ -160,6 +163,7 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
         Device.ConnectionChanged -= OnChanged;
         _runtime.Computer.Changed -= OnChanged;
         _runtime.Computer.Progress -= OnProgress;
+        _runtime.Alerts.Changed -= OnAlertPolicyChanged;
         if (_battery is not null)
         {
             _battery.Changed -= OnBatteryChanged;

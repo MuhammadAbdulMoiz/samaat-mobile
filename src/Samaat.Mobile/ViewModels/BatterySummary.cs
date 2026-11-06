@@ -22,15 +22,16 @@ public sealed record BatterySummary(
     private static readonly BatteryComponent[] Order = [BatteryComponent.Left, BatteryComponent.Right, BatteryComponent.Case, BatteryComponent.Combined];
 
     /// <param name="state">The device's battery state, or null when it has no battery feature at all.</param>
+    /// <param name="policy">The thresholds and whether a low case raises the alert (the settings' battery-alert choices).</param>
     /// <param name="isConnected">Whether the earbuds are connected to this phone (a disconnected device can't report).</param>
-    public static BatterySummary From(BatteryState? state, bool isConnected)
+    public static BatterySummary From(BatteryState? state, bool isConnected, BatteryAlertPolicy policy)
     {
         var current = state ?? BatteryState.Empty;
-        var cells = Order.Select(current.Get).OfType<BatteryReading>().Select(r => new BatteryCellViewModel(r)).ToList();
+        var cells = Order.Select(current.Get).OfType<BatteryReading>().Select(r => new BatteryCellViewModel(r, policy)).ToList();
         var summary = current.SummaryPercent;
 
-        // The most urgent bud (or the single level) decides the alert; the case only informs, as on the desktop by default.
-        var urgent = cells.Where(c => c.Component != BatteryComponent.Case && (c.IsLow || c.IsCritical))
+        // The most urgent bud (or the single level) decides the alert; the case only counts when the policy includes it.
+        var urgent = cells.Where(c => (c.Component != BatteryComponent.Case || policy.IncludeCase) && (c.IsLow || c.IsCritical))
             .OrderByDescending(c => c.IsCritical).ThenBy(c => c.Percent).FirstOrDefault();
 
         return new BatterySummary(

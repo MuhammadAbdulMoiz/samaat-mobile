@@ -75,7 +75,7 @@ public sealed partial class DeviceItemViewModel
     private void RefreshBattery()
     {
         var state = _battery?.Current;
-        var summary = BatterySummary.From(_battery is null ? null : state ?? BatteryState.Empty, IsConnected);
+        var summary = BatterySummary.From(_battery is null ? null : state ?? BatteryState.Empty, IsConnected, _runtime.Alerts.Policy);
         Battery.Clear();
         foreach (var cell in summary.Cells)
         {
