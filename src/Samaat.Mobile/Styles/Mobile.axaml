@@ -221,6 +221,12 @@
     <Setter Property="Foreground" Value="{DynamicResource Samaat.Text}" />
   </Style>
 
+  <!-- Switches are touch targets too -->
+  <Style Selector="ToggleSwitch">
+    <Setter Property="MinHeight" Value="{StaticResource Samaat.Mobile.Size.Touch}" />
+    <Setter Property="MinWidth" Value="{StaticResource Samaat.Mobile.Size.Touch}" />
+  </Style>
+
   <!-- Bottom navigation -->
   <Style Selector="Border.navBar">
     <Setter Property="Background" Value="{DynamicResource Samaat.Rail}" />

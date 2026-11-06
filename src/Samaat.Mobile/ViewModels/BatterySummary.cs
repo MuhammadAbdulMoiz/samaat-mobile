@@ -8,6 +8,7 @@ namespace Samaat.Mobile.ViewModels;
 /// </summary>
 public sealed record BatterySummary(
     IReadOnlyList<BatteryCellViewModel> Cells,
+    string Label,
     string Text,
     string Value,
     string Unit,
@@ -34,6 +35,7 @@ public sealed record BatterySummary(
 
         return new BatterySummary(
             cells,
+            Label: current.Get(BatteryComponent.Left)?.Percent is not null || current.Get(BatteryComponent.Right)?.Percent is not null ? "Lowest bud" : "Battery",
             Text: summary is { } p ? $"{p}%" : "–",
             Value: summary?.ToString() ?? "–",
             Unit: summary is null ? "" : "%",

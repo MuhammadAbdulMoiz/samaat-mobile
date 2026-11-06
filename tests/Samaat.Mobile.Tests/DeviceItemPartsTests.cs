@@ -32,6 +32,22 @@ public sealed class DeviceItemPartsTests
         Assert.Null(summary.AlertText);
     }
 
+    [Fact]
+    public void Label_IsLowestBud_OnlyWhenABudHasALevel()
+    {
+        Assert.Equal("Lowest bud", BatterySummary.From(State((BatteryComponent.Left, 90), (BatteryComponent.Right, 80)), true).Label);
+
+        var noBudLevels = BatterySummary.From(State((BatteryComponent.Left, null), (BatteryComponent.Right, null), (BatteryComponent.Combined, 70)), true);
+        Assert.Equal("Battery", noBudLevels.Label);
+        Assert.Equal("70", noBudLevels.Value);
+
+        Assert.Equal("Battery", BatterySummary.From(State((BatteryComponent.Combined, 70)), true).Label);
+
+        var none = BatterySummary.From(null, true);
+        Assert.Equal("Battery", none.Label);
+        Assert.Equal("–", none.Value);
+    }
+
     [Theory]
     [InlineData(true, "Waiting for a reading")]
     [InlineData(false, "Connect the earbuds to read their battery")]

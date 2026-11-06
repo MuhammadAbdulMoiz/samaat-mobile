@@ -74,6 +74,7 @@ public sealed class MobileRuntime : IAsyncDisposable
         SettingsStore? settings = null)
     {
         Profiles = profiles ?? DeviceProfileDb.Empty;
+        Settings = settings;
         Looks = new ArtworkChoices(settings);
         Time = time ?? TimeProvider.System;
         Registry = new DeviceRegistry(sources);
@@ -82,6 +83,9 @@ public sealed class MobileRuntime : IAsyncDisposable
         PhoneName = phoneName;
         Computer = new PhoneLinkClient(store, phoneName, new PhoneAgent(audio), beacons, Time, clientOptions);
     }
+
+    /// <summary>The settings file, or null when the app runs without one (tests, simulator).</summary>
+    public SettingsStore? Settings { get; }
 
     public DeviceRegistry Registry { get; }
 

@@ -111,6 +111,7 @@
 
       <Grid ColumnDefinitions="*,Auto">
         <StackPanel Spacing="4" VerticalAlignment="Center">
+          <TextBlock Classes="meta" Text="{Binding SummaryLabel}" />
           <StackPanel Orientation="Horizontal">
             <TextBlock Classes="figure" Classes.low="{Binding SummaryIsLow}" Classes.critical="{Binding SummaryIsCritical}" Text="{Binding SummaryValue}" />
             <TextBlock Classes="unit" Text="{Binding SummaryUnit}" />
@@ -178,7 +179,13 @@
     <Border Classes="panel" IsVisible="{Binding HasBattery}">
       <StackPanel Spacing="12">
         <StackPanel Spacing="2">
-          <TextBlock Text="Battery" Classes="panelTitle" />
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Text="Battery" Classes="panelTitle" VerticalAlignment="Center" />
+            <Button Grid.Column="1" Classes="icon" Command="{Binding RefreshBatteryCommand}" ToolTip.Tip="Ask the device for fresh battery levels"
+                    AutomationProperties.Name="Refresh battery">
+              <PathIcon Data="{StaticResource Icon.Refresh}" />
+            </Button>
+          </Grid>
           <TextBlock Text="{Binding BatteryReasonText}" Classes="meta" TextWrapping="Wrap" />
         </StackPanel>
         <ItemsControl ItemsSource="{Binding Battery}">
@@ -207,47 +214,107 @@
       </StackPanel>
     </Border>
 
-    <!-- Noise control: the desktop's option rows -->
-    <Border Classes="panel" IsVisible="{Binding HasNoise}">
+    <!-- Noise control: always shown, so a device that can't do it says why (the desktop's Sound page) -->
+    <Border Classes="panel">
       <StackPanel Spacing="12">
         <TextBlock Text="Noise control" Classes="panelTitle" />
-        <ItemsControl ItemsSource="{Binding NoiseModes}">
-          <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-              <StackPanel Spacing="4" />
-            </ItemsPanelTemplate>
-          </ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <DataTemplate x:DataType="vm:OptionViewModel">
-              <Button Classes="option" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}"
-                      AutomationProperties.Name="{Binding Label}">
-                <Grid ColumnDefinitions="Auto,*,Auto">
-                  <Border Classes="optionIcon">
-                    <PathIcon Data="{Binding IconKey, Converter={x:Static uic:UiConverters.IconByKey}}" Width="16" Height="16" />
-                  </Border>
-                  <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Label}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                    <TextBlock Text="{Binding Description}" Classes="meta" TextWrapping="Wrap" />
-                  </StackPanel>
-                  <PathIcon Grid.Column="2" Data="{StaticResource Icon.Check}" Width="14" Height="14" VerticalAlignment="Center"
-                            Foreground="{DynamicResource Samaat.Accent}" IsVisible="{Binding IsSelected}" />
-                </Grid>
-              </Button>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-        <TextBlock Text="{Binding NoiseStatusText}" Classes="meta" />
+
+        <StackPanel IsVisible="{Binding IsNoiseUnavailable}" Spacing="2">
+          <TextBlock Text="Noise control unavailable" />
+          <TextBlock Text="{Binding NoiseUnavailableText}" Classes="meta" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- IsEnabled inherits: one binding greys out every control below it, item templates included -->
+        <StackPanel Spacing="12" IsEnabled="{Binding CanControlNoise}">
+          <Grid ColumnDefinitions="*,Auto" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}" IsVisible="{Binding IsNoiseToggle}">
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="Noise cancelling" />
+              <TextBlock Text="This model has a single on/off switch for noise cancelling" Classes="meta" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsAncOn}" AutomationProperties.Name="Noise cancelling" />
+          </Grid>
+
+          <ItemsControl x:Name="NoiseModeList" ItemsSource="{Binding NoiseModes}" IsVisible="{Binding IsNoiseSelector}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Spacing="4" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:OptionViewModel">
+                <Button Classes="option" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}"
+                        AutomationProperties.Name="{Binding Label}">
+                  <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Border Classes="optionIcon">
+                      <PathIcon Data="{Binding IconKey, Converter={x:Static uic:UiConverters.IconByKey}}" Width="16" Height="16" />
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding Label}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                      <TextBlock Text="{Binding Description}" Classes="meta" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <PathIcon Grid.Column="2" Data="{StaticResource Icon.Check}" Width="14" Height="14" VerticalAlignment="Center"
+                              Foreground="{DynamicResource Samaat.Accent}" IsVisible="{Binding IsSelected}" />
+                  </Grid>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <StackPanel Spacing="4" IsVisible="{Binding ShowAncLevel}">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="Noise cancelling strength" />
+              <TextBlock Grid.Column="1" Text="{Binding AncLevel, StringFormat='{}{0:0}'}" Classes="number" />
+            </Grid>
+            <Slider Minimum="{Binding AncMin}" Maximum="{Binding AncMax}" Value="{Binding AncLevel}" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}"
+                    TickFrequency="1" IsSnapToTickEnabled="True" AutomationProperties.Name="Noise cancelling strength" />
+            <TextBlock Text="Lower it if you hear pressure or hiss in quiet rooms" Classes="meta" TextWrapping="Wrap" />
+          </StackPanel>
+
+          <StackPanel Spacing="4" IsVisible="{Binding ShowAmbientLevel}">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="Ambient sound level" />
+              <TextBlock Grid.Column="1" Text="{Binding AmbientLevel, StringFormat='{}{0:0}'}" Classes="number" />
+            </Grid>
+            <Slider Minimum="{Binding AmbientMin}" Maximum="{Binding AmbientMax}" Value="{Binding AmbientLevel}" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}"
+                    TickFrequency="1" IsSnapToTickEnabled="True" AutomationProperties.Name="Ambient sound level" />
+            <TextBlock Text="How much of your surroundings passes through" Classes="meta" TextWrapping="Wrap" />
+          </StackPanel>
+
+          <StackPanel Spacing="8" IsVisible="{Binding HasExtras}">
+            <TextBlock Text="Extras" Classes="panelTitle" />
+            <Grid ColumnDefinitions="*,Auto" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}" IsVisible="{Binding ShowWind}">
+              <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Wind noise reduction" />
+                <TextBlock Text="Cuts the rumble of wind on the microphones" Classes="meta" TextWrapping="Wrap" />
+              </StackPanel>
+              <ToggleSwitch Grid.Column="1" IsChecked="{Binding WindReduction}" AutomationProperties.Name="Wind noise reduction" />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}" IsVisible="{Binding ShowConversation}">
+              <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Conversation awareness" />
+                <TextBlock Text="Lowers your audio and lets voices through when you start talking" Classes="meta" TextWrapping="Wrap" />
+              </StackPanel>
+              <ToggleSwitch Grid.Column="1" IsChecked="{Binding ConversationAwareness}" AutomationProperties.Name="Conversation awareness" />
+            </Grid>
+          </StackPanel>
+        </StackPanel>
+
+        <TextBlock Text="{Binding NoiseStatusText}" Classes="meta" IsVisible="{Binding !IsNoiseUnavailable}" />
       </StackPanel>
     </Border>
 
     <!-- EQ presets stored on the earbuds -->
-    <Border Classes="panel" IsVisible="{Binding HasEq}">
+    <Border Classes="panel">
       <StackPanel Spacing="12">
         <StackPanel Spacing="2">
           <TextBlock Text="Equalizer" Classes="panelTitle" />
-          <TextBlock Text="Presets stored on the earbuds" Classes="meta" />
+          <TextBlock Text="Presets stored on the earbuds" Classes="meta" IsVisible="{Binding HasEq}" />
         </StackPanel>
-        <ItemsControl ItemsSource="{Binding EqPresets}">
+        <StackPanel IsVisible="{Binding !HasEq}" Spacing="2">
+          <TextBlock Text="Equalizer unavailable" />
+          <TextBlock Text="Samaat can't change this device's EQ yet. That needs support for this model's own protocol." Classes="meta" TextWrapping="Wrap" />
+        </StackPanel>
+        <ItemsControl x:Name="EqPresetList" ItemsSource="{Binding EqPresets}" IsEnabled="{Binding CanControlEq}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
               <StackPanel Spacing="4" />

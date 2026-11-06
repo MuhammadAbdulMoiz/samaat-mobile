@@ -78,7 +78,8 @@ public sealed partial class DeviceItemViewModel : ObservableObject, IDisposable
     // Connection on this phone
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ShowConnect), nameof(ShowDisconnect), nameof(AccessibleText))]
+    [NotifyPropertyChangedFor(nameof(ShowConnect), nameof(ShowDisconnect), nameof(AccessibleText), nameof(CanControlNoise), nameof(CanControlEq))]
+    [NotifyCanExecuteChangedFor(nameof(RefreshBatteryCommand))]
     public partial bool IsConnected { get; set; }
 
     [ObservableProperty]

@@ -1,0 +1,78 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Samaat.Mobile.ViewModels"
+             xmlns:set="using:Samaat.Core.Settings"
+             xmlns:uilogo="using:Samaat.UI"
+             x:Class="Samaat.Mobile.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+  <!-- The desktop's settings page at phone width: a panel per topic, the same words -->
+  <StackPanel Spacing="16">
+    <Border Classes="alert critical" IsVisible="{Binding HasError}">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <PathIcon Data="{StaticResource Icon.Warning}" Width="14" Height="14" VerticalAlignment="Top" Margin="0,2,0,0" />
+        <TextBlock Text="{Binding ErrorText}" TextWrapping="Wrap" FontWeight="SemiBold" MaxWidth="300" />
+      </StackPanel>
+    </Border>
+    <Border Classes="panel">
+      <StackPanel Spacing="8">
+        <StackPanel Spacing="2" Margin="0,0,0,4">
+          <TextBlock Text="Appearance" Classes="panelTitle" />
+          <TextBlock Text="How Samaat looks" Classes="meta" />
+        </StackPanel>
+        <Grid ColumnDefinitions="Auto,*" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}">
+          <Border Classes="optionIcon" VerticalAlignment="Center">
+            <PathIcon Data="{StaticResource Icon.Theme}" Width="16" Height="16" />
+          </Border>
+          <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+            <TextBlock Text="Mode" />
+            <TextBlock Text="Follow your phone, or pick one" Classes="meta" TextWrapping="Wrap" />
+          </StackPanel>
+        </Grid>
+        <StackPanel Spacing="4">
+          <Button Classes="option" Classes.selected="{Binding IsSystemTheme}" Command="{Binding SetThemeCommand}"
+                  CommandParameter="{x:Static set:ThemeChoice.System}" AutomationProperties.Name="System">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="System" FontWeight="SemiBold" VerticalAlignment="Center" />
+              <PathIcon Grid.Column="1" Data="{StaticResource Icon.Check}" Width="14" Height="14" VerticalAlignment="Center"
+                        Foreground="{DynamicResource Samaat.Accent}" IsVisible="{Binding IsSystemTheme}" />
+            </Grid>
+          </Button>
+          <Button Classes="option" Classes.selected="{Binding IsLightTheme}" Command="{Binding SetThemeCommand}"
+                  CommandParameter="{x:Static set:ThemeChoice.Light}" AutomationProperties.Name="Light">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="Light" FontWeight="SemiBold" VerticalAlignment="Center" />
+              <PathIcon Grid.Column="1" Data="{StaticResource Icon.Check}" Width="14" Height="14" VerticalAlignment="Center"
+                        Foreground="{DynamicResource Samaat.Accent}" IsVisible="{Binding IsLightTheme}" />
+            </Grid>
+          </Button>
+          <Button Classes="option" Classes.selected="{Binding IsDarkTheme}" Command="{Binding SetThemeCommand}"
+                  CommandParameter="{x:Static set:ThemeChoice.Dark}" AutomationProperties.Name="Dark">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="Dark" FontWeight="SemiBold" VerticalAlignment="Center" />
+              <PathIcon Grid.Column="1" Data="{StaticResource Icon.Check}" Width="14" Height="14" VerticalAlignment="Center"
+                        Foreground="{DynamicResource Samaat.Accent}" IsVisible="{Binding IsDarkTheme}" />
+            </Grid>
+          </Button>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <Border Classes="panel">
+      <Grid ColumnDefinitions="Auto,*">
+        <Image Source="{x:Static uilogo:Logo.Image}" Width="40" Height="40" VerticalAlignment="Top" AutomationProperties.Name="Samaat logo" />
+        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+          <TextBlock Text="Samaat" Classes="display" FontSize="{StaticResource Samaat.FontSize.Heading}" />
+          <TextBlock Text="{Binding VersionText}" Classes="meta" />
+          <TextBlock Text="A companion for Bluetooth earbuds from any brand" Classes="meta" TextWrapping="Wrap" />
+          <TextBlock Text="{Binding LicenceNotice}" Classes="meta" TextWrapping="Wrap" Margin="0,8,0,0" />
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <HyperlinkButton Content="Licence" NavigateUri="{Binding LicenceUri}" Padding="0" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}"
+                             Foreground="{DynamicResource Samaat.Accent}" AutomationProperties.Name="Read the GNU GPL v3 licence" />
+            <HyperlinkButton Content="Source code" NavigateUri="{Binding SourceUri}" Padding="0" MinHeight="{StaticResource Samaat.Mobile.Size.Touch}"
+                             Foreground="{DynamicResource Samaat.Accent}" AutomationProperties.Name="Open Samaat's source code" />
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </StackPanel>
+</UserControl>

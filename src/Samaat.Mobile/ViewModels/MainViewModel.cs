@@ -11,9 +11,10 @@ public enum MobileTab
 {
     Earbuds,
     Computer,
+    Settings,
 }
 
-/// <summary>The phone app's shell: two tabs (earbuds, computer), a device page, a banner for blockers and short messages.</summary>
+/// <summary>The phone app's shell: three tabs (earbuds, computer, settings), a device page, a banner for blockers and short messages.</summary>
 public sealed partial class MainViewModel : ObservableObject, IDisposable
 {
     public static readonly TimeSpan MessageLifetime = TimeSpan.FromSeconds(6);
@@ -27,6 +28,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _runtime = runtime;
         _post = post ?? (a => Dispatcher.UIThread.Post(a));
         Computer = new ComputerViewModel(runtime, _post, ShowMessage);
+        Settings = new SettingsViewModel(runtime.Settings, ThemePolicy.Apply);
         _runtime.Registry.DevicesChanged += (_, _) => _post(SyncDevices);
         _runtime.Audio.Changed += (_, _) => _post(RefreshBanner);
         SyncDevices();
@@ -43,6 +45,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     public ComputerViewModel Computer { get; }
 
+    public SettingsViewModel Settings { get; }
+
     public ObservableCollection<DeviceItemViewModel> Devices { get; } = [];
 
     public bool HasDevices => Devices.Count > 0;
@@ -52,7 +56,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public string EmptyText => "No earbuds are paired with this phone. Pair them in Bluetooth settings, then come back.";
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsEarbuds), nameof(IsComputer), nameof(ShowDeviceList), nameof(ShowDevice), nameof(ShowEmpty), nameof(Title), nameof(CanGoBack), nameof(ShowBrand))]
+    [NotifyPropertyChangedFor(nameof(IsEarbuds), nameof(IsComputer), nameof(IsSettings), nameof(ShowDeviceList), nameof(ShowDevice), nameof(ShowEmpty), nameof(Title), nameof(CanGoBack), nameof(ShowBrand))]
     public partial MobileTab Tab { get; set; }
 
     [ObservableProperty]
@@ -63,6 +67,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     public bool IsComputer => Tab == MobileTab.Computer;
 
+    public bool IsSettings => Tab == MobileTab.Settings;
+
     public bool ShowDeviceList => IsEarbuds && SelectedDevice is null && HasDevices;
 
     public bool ShowDevice => IsEarbuds && SelectedDevice is not null;
@@ -72,7 +78,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     /// <summary>The brand mark sits beside "Samaat" on the home screen only, as in the desktop sidebar.</summary>
     public bool ShowBrand => IsEarbuds && SelectedDevice is null;
 
-    public string Title => ShowDevice ? SelectedDevice!.Name : IsComputer ? "Computer" : "Samaat";
+    public string Title => ShowDevice ? SelectedDevice!.Name : IsComputer ? "Computer" : IsSettings ? "Settings" : "Samaat";
 
     /// <summary>Something stops Samaat working (a permission, Bluetooth off), with a button that fixes it.</summary>
     [ObservableProperty]
@@ -117,6 +123,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     [RelayCommand]
     private void ShowComputer() => Tab = MobileTab.Computer;
+
+    [RelayCommand]
+    private void ShowSettings() => Tab = MobileTab.Settings;
 
     [RelayCommand]
     private void Open(DeviceItemViewModel device)

@@ -308,6 +308,9 @@ public sealed class MobileTests : IAsyncDisposable
         _viewModel.OpenCommand.Execute(_viewModel.Devices.Single(d => d.Name == "Simulated Buds Pro"));
         AssertButtonsAccessible("device page");
 
+        _viewModel.ShowSettingsCommand.Execute(null);
+        AssertButtonsAccessible("settings");
+
         _viewModel.ShowComputerCommand.Execute(null);
         _computer.OpenPairing();
         await UntilAsync(() => _viewModel.Computer.HasNearby, "the computer in the nearby list");

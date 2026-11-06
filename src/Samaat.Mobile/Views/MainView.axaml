@@ -89,6 +89,8 @@
           <views:DeviceView DataContext="{Binding SelectedDevice}" IsVisible="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).ShowDevice}" />
 
           <views:ComputerView DataContext="{Binding Computer}" IsVisible="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).IsComputer}" />
+
+          <views:SettingsView DataContext="{Binding Settings}" IsVisible="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).IsSettings}" />
         </Panel>
         <!-- Room as tall as the toast, so the last row can scroll clear of it instead of hiding under it -->
         <Border x:Name="ToastRoom" Height="{Binding #Toast.Bounds.Height}" IsVisible="{Binding HasMessage}" />
@@ -107,17 +109,23 @@
 
     <!-- Bottom navigation -->
     <Border Grid.Row="3" x:Name="NavBar" Classes="navBar">
-      <UniformGrid Columns="2">
+      <UniformGrid Columns="3">
         <Button Classes="nav" Classes.selected="{Binding IsEarbuds}" Command="{Binding ShowEarbudsCommand}" Margin="0,0,4,0">
           <StackPanel Spacing="2" HorizontalAlignment="Center">
             <PathIcon Data="{StaticResource Icon.Headphones}" HorizontalAlignment="Center" />
             <TextBlock Text="Earbuds" HorizontalAlignment="Center" />
           </StackPanel>
         </Button>
-        <Button Classes="nav" Classes.selected="{Binding IsComputer}" Command="{Binding ShowComputerCommand}" Margin="4,0,0,0">
+        <Button Classes="nav" Classes.selected="{Binding IsComputer}" Command="{Binding ShowComputerCommand}" Margin="4,0,4,0">
           <StackPanel Spacing="2" HorizontalAlignment="Center">
             <PathIcon Data="{StaticResource Icon.Laptop}" HorizontalAlignment="Center" />
             <TextBlock Text="Computer" HorizontalAlignment="Center" />
+          </StackPanel>
+        </Button>
+        <Button Classes="nav" Classes.selected="{Binding IsSettings}" Command="{Binding ShowSettingsCommand}" Margin="4,0,0,0">
+          <StackPanel Spacing="2" HorizontalAlignment="Center">
+            <PathIcon Data="{StaticResource Icon.Settings}" HorizontalAlignment="Center" />
+            <TextBlock Text="Settings" HorizontalAlignment="Center" />
           </StackPanel>
         </Button>
       </UniformGrid>

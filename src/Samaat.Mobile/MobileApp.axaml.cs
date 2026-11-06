@@ -34,9 +34,12 @@ public partial class MobileApp : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    private static MainView CreateMainView()
+    public static MainView CreateMainView()
     {
-        var viewModel = new MainViewModel(RuntimeFactory());
+        var runtime = RuntimeFactory();
+        // Before any view exists, so the first frame already has the chosen theme.
+        ThemePolicy.Apply(ThemePolicy.Stored(runtime.Settings));
+        var viewModel = new MainViewModel(runtime);
         Shell = viewModel;
         viewModel.Start();
         return new MainView { DataContext = viewModel };
