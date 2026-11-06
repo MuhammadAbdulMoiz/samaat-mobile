@@ -1,5 +1,6 @@
 using Android.App;
 using Android.Content.PM;
+using Android.Content.Res;
 using Android.Runtime;
 using Avalonia;
 using Avalonia.Android;
@@ -13,7 +14,7 @@ namespace Samaat.Android;
     Icon = "@drawable/icon",
     MainLauncher = true,
     Exported = true,
-    ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode)]
+    ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode | ConfigChanges.FontScale)]
 public class MainActivity : AvaloniaMainActivity<MobileApp>
 {
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
@@ -32,8 +33,16 @@ public class MainActivity : AvaloniaMainActivity<MobileApp>
         AndroidHost.Audio?.Refresh();
         // "Remove animations" may have changed while Samaat was in the background.
         MobileApp.Shell?.RefreshMotion();
+        // The font size may have changed too (Avalonia ignores it, so the phone applies it itself).
+        MobileApp.Shell?.RefreshFontScale();
         // Notifications are on but Android had no screen to ask from earlier: ask now that there is one.
         MobileApp.Shell?.CheckNotificationPermission();
+    }
+
+    public override void OnConfigurationChanged(Configuration newConfig)
+    {
+        base.OnConfigurationChanged(newConfig);
+        MobileApp.Shell?.RefreshFontScale();
     }
 
     protected override void OnPause()
