@@ -22,11 +22,11 @@ public sealed class NoiseGatingTests
         new LevelRange(0, 10), new LevelRange(1, 5), WindReduction: true, ConversationAwareness: true);
 
     private static (DeviceItemViewModel Item, FakeNoise? Noise, FakeDevice Device) Make(NoiseControlOptions? options, bool connected = true,
-        CapabilityAccess access = CapabilityAccess.ReadWrite, bool battery = false)
+        CapabilityAccess access = CapabilityAccess.ReadWrite, bool battery = false, Action<string>? onMessage = null)
     {
         var noise = options is null ? null : new FakeNoise(options) { Access = access };
         var device = new FakeDevice(connected, noise, battery ? new FakeBattery() : null);
-        return (new DeviceItemViewModel(device, SimulatedMobile.Create(), a => a(), _ => { }, () => { }), noise, device);
+        return (new DeviceItemViewModel(device, SimulatedMobile.Create(), a => a(), onMessage ?? (m => { }), () => { }), noise, device);
     }
 
     private static ItemsControl FindList(DeviceItemViewModel item, string name)
@@ -180,6 +180,21 @@ public sealed class NoiseGatingTests
         Assert.Equal("Couldn't refresh the battery", item.ErrorText);
     }
 
+    [Fact]
+    public async Task RefreshBattery_SaysSo_WhenTheDeviceSendsNoReading()
+    {
+        var messages = new List<string>();
+        var (item, _, _) = Make(null, battery: true, onMessage: messages.Add);
+        var battery = (FakeBattery)item.Device.GetFeature<IBatteryFeature>()!;
+
+        await item.RefreshBatteryCommand.ExecuteAsync(null);
+        Assert.Equal(["Fake buds sent no new battery reading. Samaat shows its next update as soon as it arrives."], messages);
+
+        battery.Answer = true;
+        await item.RefreshBatteryCommand.ExecuteAsync(null);
+        Assert.Single(messages);
+    }
+
     [AvaloniaFact]
     public async Task EqPresets_AreDisabledWhenNotConnected()
     {
@@ -231,6 +246,9 @@ public sealed class NoiseGatingTests
 
         public bool Throw { get; set; }
 
+        /// <summary>Sends a reading while refreshing, as a device that answers does.</summary>
+        public bool Answer { get; set; }
+
         public IReadOnlySet<BatteryComponent> Components { get; } = new HashSet<BatteryComponent> { BatteryComponent.Left };
 
         public bool ComponentsAreExhaustive => true;
@@ -241,15 +259,16 @@ public sealed class NoiseGatingTests
 
         public BatteryState Current => BatteryState.Empty;
 
-        public event EventHandler<BatteryState>? Changed
-        {
-            add { }
-            remove { }
-        }
+        public event EventHandler<BatteryState>? Changed;
 
         public Task RefreshAsync(CancellationToken cancellationToken = default)
         {
             Refreshes++;
+            if (Answer)
+            {
+                Changed?.Invoke(this, Current);
+            }
+
             return Throw ? Task.FromException(new InvalidOperationException("boom")) : Task.CompletedTask;
         }
     }
